@@ -17,6 +17,7 @@ Link: https://raw.githubusercontent.com/brunocalado/daggerheart-extra-content/ma
 - **Visual Alerts:** Pulse the screen with colored borders.
 - **Screen Cover:** Show full-screen images or videos.
 - **Audio Support:** Play sounds in sync with effects.
+- **Advanced Shake:** Shake the screen horizontally, vertically, or randomly.
 
 # Changelog
 You can read changes at [Changelog](CHANGELOG.md)

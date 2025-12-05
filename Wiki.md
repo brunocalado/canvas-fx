@@ -16,32 +16,40 @@ Spawns emojis or text raining from the top of the screen.
 - **Items:** 💰, 💎, 🗝️, 📜, 🍎, 🍖
 - **Status:** 💤, 🤢, 🤬, 😱, ❤️, 🤡
 
-```javascript
-// Instant burst
-CanvasFX.RainEmote("🔥", { count: 50, speed: 300, scale: 2 });
+**Options:**
+- `count` (Number): Total particles. Default: 20.
+- `speed` (Number): Fall speed in pixels/sec. Default: 300.
+- `scale` (Number): Size multiplier. Default: 1.
+- `time` (Number): Duration in seconds. 0 = Instant.
+- `audio` (String): Path to audio file.
+- `volume` (Number): 0.0 to 1.0.
+- `local` (Boolean): Only show for self.
 
-// Timed rain with sound
-CanvasFX.RainEmote("💰", { 
-    count: 200, 
-    time: 5, 
-    audio: "modules/canvas-fx/assets/audio/coins.mp3",
-    scale: 1.5
-});
+```javascript
+CanvasFX.RainEmote("🔥", { count: 50, speed: 300, scale: 2 });
 ```
 
 ### 2. RainImage (Images)
 Spawns images raining down.
 
+**Options:**
+- Same options as RainEmote.
+
 ```javascript
 CanvasFX.RainImage("modules/canvas-fx/assets/images/cute-head.webp", { 
     count: 20, 
-    scale: 3,  // 3x size
+    scale: 3,
     speed: 400
 });
 ```
 
 ### 3. GlassShatter (Screen Break)
-Simulates the screen shattering like glass, accompanied by a heavy shake.
+Simulates the screen shattering like glass, accompanied by a heavy random shake.
+
+**Options:**
+- `count` (Number): Number of shards. Default: 75.
+- `audio` (String): Path to audio.
+- `local` (Boolean): Only show for self.
 
 ```javascript
 CanvasFX.GlassShatter({ 
@@ -50,28 +58,17 @@ CanvasFX.GlassShatter({
 ```
 
 ### 4. Text (Giant Overlay)
-Displays a massive text in the center of the screen. Supports 3 background modes via the `fill` option.
+Displays a massive text in the center of the screen.
 
-- `fill: "box"` (Default): Background wraps the text.
-- `fill: "band"`: Background stretches from left to right (100% width).
-- `fill: "full"`: Background covers the entire screen (100% width & height).
+**Options:**
+- `content` (String): The text.
+- `color` (String): Text color (Hex/Name).
+- `backgroundColor` (String): Background color.
+- `fill` (String): "box" (default), "band" (full width), "full" (full screen).
+- `duration` (Number): Seconds to stay on screen.
+- `audio` (String): Path to audio.
 
 ```javascript
-// 1. Standard Box (Default)
-CanvasFX.Text("GAME OVER", { 
-    color: "red", 
-    backgroundColor: "black", 
-    fill: "box"
-});
-
-// 2. Cinematic Band
-CanvasFX.Text("CHAPTER 1", { 
-    backgroundColor: "rgba(0,0,0,0.8)", 
-    fill: "band",
-    duration: 4
-});
-
-// 3. Full Screen Cover
 CanvasFX.Text("VICTORY", { 
     color: "gold", 
     backgroundColor: "black", 
@@ -83,43 +80,62 @@ CanvasFX.Text("VICTORY", {
 ### 5. ScreenBorder (Visual Alert)
 Toggles a pulsing colored border.
 
-```javascript
-// Default Red Border
-CanvasFX.ScreenBorder();
+**Options:**
+- `active` (Boolean): true to turn on, false to turn off.
+- `color` (String): Border color.
+- `thickness` (Number): Border width in pixels. Default: 20.
 
-// Custom Thickness and Color
+```javascript
 CanvasFX.ScreenBorder({ 
     color: "#ffffff", 
-    thickness: 20,  // Thickness in pixels
+    thickness: 20, 
     active: true 
 });
-
-// Disable
-CanvasFX.ScreenBorder({ active: false });
 ```
 
 ### 6. ScreenCover (Cinematics)
-Covers the entire screen with an image or video (mp4/webm).
+Covers the entire screen with an image or video.
+
+**Options:**
+- `duration` (Number): Seconds to show.
+- `opacity` (Number): 0.0 to 1.0.
+- `audio` (String): Path to audio.
 
 ```javascript
-// Image Example
 CanvasFX.ScreenCover("modules/canvas-fx/assets/images/light-vs-dark.webp", { 
     duration: 5, 
     audio: "modules/canvas-fx/assets/audio/light-vs-dark.mp3" 
-});
-
-// Video Example
-CanvasFX.ScreenCover("modules/canvas-fx/assets/video/demo.mp4", { 
-    duration: 15, 
-    audio: "sounds/intro_music.mp3" 
 });
 ```
 
 ### 7. ScreenShake (Impact)
 Shakes the interface.
 
+**Options:**
+- `duration` (Number): Time in milliseconds. Default: 500.
+- `intensity` (String): "mild", "heavy", "extreme". Default: "heavy".
+- `direction` (String): 
+    - "horizontal" (Left/Right)
+    - "vertical" (Up/Down)
+    - "diagonal" (Diagonal vibration)
+    - "random" (Chaotic movement in all directions)
+- `audio` (String): Path to audio.
+
 ```javascript
-CanvasFX.ScreenShake({ intensity: "heavy", duration: 500 });
+// Random Earthquake
+CanvasFX.ScreenShake({ 
+    intensity: "extreme", 
+    duration: 2000, 
+    direction: "random",
+    audio: "modules/canvas-fx/assets/audio/earthquake.mp3"
+});
+
+// Vertical Impact
+CanvasFX.ScreenShake({ 
+    intensity: "heavy", 
+    duration: 500, 
+    direction: "vertical" 
+});
 ```
 
 ### 8. Clear
@@ -128,13 +144,3 @@ Removes all effects immediately.
 ```javascript
 CanvasFX.Clear();
 ```
-
----
-
-## Common Options
-Most functions accept an options object:
-- `scale` (Number): Multiplier for size (default 1).
-- `audio` (String): Path to audio file.
-- `volume` (Number): 0.0 to 1.0.
-- `local` (Boolean): If true, effect is NOT sent to other players.
-- `duration` (Number): Time in seconds.

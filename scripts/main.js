@@ -1,5 +1,5 @@
 /**
- * Canvas FX v7.3 - Color Fixes & Updates
+ * Canvas FX v1.0.0 - Official Release
  * Author: Mestre Digital
  */
 
@@ -11,6 +11,7 @@ class CanvasFXManager {
         this.borderLayer = null; // Red Border
         this.coverLayer = null;  // Fullscreen Image/Video
         this.textLayer = null;   // Giant Text
+        this.shakeInterval = null; // Timer for random shake
         this.particles = [];
         this.emitters = [];
         this.running = false;
@@ -145,20 +146,17 @@ class CanvasFXManager {
     }
 
     /* --- HELPER: COLORS --- */
-    /** Converts hex or named color to RGB triplet for CSS variables */
     colorToRGB(color) {
         const ctx = document.createElement("canvas").getContext("2d");
         ctx.fillStyle = color;
-        const computed = ctx.fillStyle; // Returns #aaaaaa
-        
-        // simple hex parse
+        const computed = ctx.fillStyle;
         if (computed.startsWith("#")) {
             const r = parseInt(computed.slice(1, 3), 16);
             const g = parseInt(computed.slice(3, 5), 16);
             const b = parseInt(computed.slice(5, 7), 16);
             return `${r}, ${g}, ${b}`;
         }
-        return "255, 0, 0"; // Fallback red
+        return "255, 0, 0";
     }
 
     /* --- EFFECT LOGIC --- */
@@ -184,7 +182,6 @@ class CanvasFXManager {
         textBox.style.backgroundColor = bg;
         textBox.style.fontFamily = fontFamily;
 
-        // Apply Fill Styles
         if (fill === "band") {
             textBox.style.width = "100%";
             textBox.style.borderRadius = "0";
@@ -263,21 +260,51 @@ class CanvasFXManager {
     handleShake(options) {
         const body = document.body;
         const duration = options.duration || 500;
-        const intensity = options.intensity || "heavy"; 
+        const intensity = options.intensity || "heavy"; // mild, heavy, extreme
+        const direction = options.direction || "horizontal"; // horizontal, vertical, random
         
-        const className = intensity === "mild" ? "cfx-shake-mild" : "cfx-shake-heavy";
+        // Reset
+        if (this.shakeInterval) clearInterval(this.shakeInterval);
+        body.style.transform = "";
+        
+        // Determine pixel magnitude based on intensity
+        let magnitude = 5;
+        if (intensity === "mild") magnitude = 3;
+        if (intensity === "heavy") magnitude = 10;
+        if (intensity === "extreme") magnitude = 20;
 
-        body.classList.remove("cfx-shake-mild", "cfx-shake-heavy");
-        void body.offsetWidth; 
-        body.classList.add(className);
+        const startTime = Date.now();
 
-        setTimeout(() => {
-            body.classList.remove(className);
-        }, duration);
+        // Use Interval for Random/Vertical Shakes (CSS Keyframes are mostly horizontal)
+        this.shakeInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            if (elapsed >= duration) {
+                clearInterval(this.shakeInterval);
+                body.style.transform = "";
+                return;
+            }
+
+            let x = 0;
+            let y = 0;
+
+            if (direction === "horizontal" || direction === "random" || direction === "diagonal") {
+                x = (Math.random() - 0.5) * magnitude * 2;
+            }
+            if (direction === "vertical" || direction === "random" || direction === "diagonal") {
+                y = (Math.random() - 0.5) * magnitude * 2;
+            }
+
+            if (direction === "diagonal") {
+                y = x; 
+            }
+
+            body.style.transform = `translate(${x}px, ${y}px)`;
+
+        }, 16); 
     }
 
     handleShatter(options) {
-        this.handleShake({ duration: 800, intensity: "heavy" });
+        this.handleShake({ duration: 800, intensity: "heavy", direction: "random" });
 
         const count = options.count || 75;
         const screenW = window.innerWidth;
@@ -320,13 +347,12 @@ class CanvasFXManager {
         if (!this.borderLayer) return;
         const isActive = this.borderLayer.classList.contains("active");
         const shouldBeActive = options.active !== undefined ? options.active : !isActive;
-        const thickness = options.thickness || 20; // Default thickness updated
+        const thickness = options.thickness || 20;
 
         if (shouldBeActive) {
             this.borderLayer.classList.add("active");
             this.borderLayer.style.borderWidth = `${thickness}px`;
 
-            // CSS Variable injection for the animation to pick up
             const color = options.color || "red";
             const rgb = this.colorToRGB(color);
             this.borderLayer.style.setProperty('--cfx-border-rgb', rgb);
@@ -353,6 +379,8 @@ class CanvasFXManager {
             this.textLayer.innerHTML = "";
             this.textLayer.style.display = "none";
         }
+        if (this.shakeInterval) clearInterval(this.shakeInterval);
+        document.body.style.transform = "";
         this.particles = [];
         this.emitters = [];
     }
