@@ -1,4 +1,4 @@
-# Canvas FX (Foundry VTT)
+# Canvas FX
 
 **Canvas FX** is a lightweight module for Foundry VTT (v12/v13) that allows Game Masters to trigger screen-space visual effects, such as raining emojis, text overlays, screen shakes, and cinematics using simple macros.
 
@@ -6,7 +6,7 @@ The effects are rendered directly into the DOM (HTML), ensuring they appear **ab
 
 ## Manual Instalation
 Go to **modules** and paste the link. 
-Link: https://raw.githubusercontent.com/brunocalado/daggerheart-extra-content/main/module.json
+Link: https://raw.githubusercontent.com/brunocalado/canvas-fx/main/module.json
 
 ## Features
 
