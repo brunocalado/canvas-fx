@@ -1,0 +1,25 @@
+{
+  "id": "canvas-fx",
+  "title": "Canvas FX",
+  "version": "7.3.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "Mestre Digital"
+    }
+  ],
+  "description": "Cinematic screen effects, text overlays, and audio triggers.",
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/styles.css"
+  ],
+  "socket": true,
+  "url": "https://github.com/brunocalado/canvas-fx",
+  "manifest": "https://raw.githubusercontent.com/brunocalado/canvas-fx/main/module.json",
+  "download": "https://codeload.github.com/brunocalado/canvas-fx/zip/main"
+}

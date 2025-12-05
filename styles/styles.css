@@ -1,0 +1,149 @@
+/* --- LAYERS --- */
+#canvas-fx-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 100000;
+    overflow: hidden;
+    display: block;
+}
+
+#canvas-fx-border {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 200000;
+    box-sizing: border-box;
+    border: 0px solid transparent;
+    transition: border 0.3s ease;
+    display: none;
+    /* Default Border Color Variable (Red) */
+    --cfx-border-rgb: 255, 0, 0;
+}
+
+#canvas-fx-cover {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 150000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: black;
+    transition: opacity 1s ease-in-out;
+    opacity: 0;
+}
+
+#canvas-fx-cover img, 
+#canvas-fx-cover video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* NEW: Giant Text Layer */
+#canvas-fx-text {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 250000; /* Highest priority */
+    display: none;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+}
+
+.cfx-text-box {
+    font-size: 25vh; /* 1/4 of screen height */
+    line-height: 1;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px 40px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    text-transform: uppercase;
+    border-radius: 8px; /* Default */
+    white-space: nowrap;
+}
+
+/* --- PARTICLES --- */
+.cfx-particle {
+    position: absolute;
+    user-select: none;
+    pointer-events: none;
+    will-change: transform;
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.5);
+    line-height: 1;
+    z-index: 100001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cfx-particle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(2px 4px 6px black);
+}
+
+.cfx-shard {
+    position: absolute;
+    background: rgba(200, 230, 255, 0.4); 
+    backdrop-filter: blur(2px); 
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+    will-change: transform;
+    z-index: 100002;
+}
+
+/* --- ANIMATIONS --- */
+#canvas-fx-border.active {
+    display: block;
+    animation: cfx-pulse-border 2s infinite;
+}
+
+@keyframes cfx-pulse-border {
+    0% { 
+        box-shadow: inset 0 0 20px rgba(var(--cfx-border-rgb), 0.5); 
+        border-color: rgba(var(--cfx-border-rgb), 0.8); 
+    }
+    50% { 
+        box-shadow: inset 0 0 50px rgba(var(--cfx-border-rgb), 0.8); 
+        border-color: rgba(var(--cfx-border-rgb), 1); 
+    }
+    100% { 
+        box-shadow: inset 0 0 20px rgba(var(--cfx-border-rgb), 0.5); 
+        border-color: rgba(var(--cfx-border-rgb), 0.8); 
+    }
+}
+
+.cfx-shake-heavy {
+    animation: cfx-shake-anim 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+}
+
+.cfx-shake-mild {
+    animation: cfx-shake-anim 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    animation-duration: 0.8s;
+}
+
+@keyframes cfx-shake-anim {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
