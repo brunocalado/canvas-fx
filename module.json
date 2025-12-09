@@ -1,9 +1,9 @@
 {
   "id": "canvas-fx",
   "title": "Canvas FX",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "compatibility": {
-    "minimum": "12",
+    "minimum": "13",
     "verified": "13"
   },
   "authors": [

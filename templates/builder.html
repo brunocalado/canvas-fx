@@ -1,0 +1,37 @@
+<div class="cfx-builder-container">
+    <div class="cfx-builder-header">
+        <select id="cfx-builder-select">
+            {{#each effects as |fields name|}}
+            <option value="{{name}}">{{name}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div id="cfx-builder-form">
+        {{#each effects as |fields effectName|}}
+        <div class="cfx-effect-group" data-effect="{{effectName}}" style="display: none;">
+            {{#each fields}}
+            <div class="cfx-builder-row">
+                <label>{{this.label}}</label>
+                {{#if (eq this.type "select")}}
+                    <select name="{{this.name}}" data-type="{{this.type}}">
+                        {{#each this.options}}
+                        <option value="{{this}}" {{#if (eq this ../default)}}selected{{/if}}>{{this}}</option>
+                        {{/each}}
+                    </select>
+                {{else if (eq this.type "checkbox")}}
+                    <input type="checkbox" name="{{this.name}}" data-type="{{this.type}}" {{#if this.default}}checked{{/if}} />
+                {{else}}
+                    <input type="{{this.type}}" name="{{this.name}}" value="{{this.default}}" data-type="{{this.type}}"/>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+        {{/each}}
+    </div>
+
+    <div class="cfx-builder-actions">
+        <button type="button" id="cfx-builder-play" class="play"><i class="fas fa-play"></i> Play Effect</button>
+        <button type="button" id="cfx-builder-clear" class="clear"><i class="fas fa-trash"></i> Clear Screen</button>
+    </div>
+</div>
