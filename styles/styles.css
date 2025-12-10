@@ -55,6 +55,62 @@
     transition: background 0.5s ease;
 }
 
+/* --- COUNTDOWN --- */
+#canvas-fx-countdown {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 250000; display: none;
+    justify-content: center; align-items: center;
+}
+#canvas-fx-countdown span {
+    font-size: 30vh; font-weight: bold; font-family: Impact, sans-serif;
+    text-shadow: 0 0 20px black;
+    transform: scale(1);
+    will-change: transform;
+}
+
+@keyframes cfx-pulse-number {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.cfx-pulse-tick {
+    animation: cfx-pulse-number 0.3s ease-out;
+}
+
+/* --- TEXT ANIMATIONS --- */
+.cfx-anim-pulse {
+    animation: cfx-text-pulse 2s infinite ease-in-out;
+}
+@keyframes cfx-text-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.cfx-anim-shake {
+    animation: cfx-text-shake 3s infinite ease-in-out;
+}
+@keyframes cfx-text-shake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(2px, 2px) rotate(1deg); }
+    50% { transform: translate(-2px, 1px) rotate(-1deg); }
+    75% { transform: translate(1px, -2px) rotate(0deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* --- SLIDESHOW --- */
+#canvas-fx-slideshow {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 140000; display: none;
+    background: black;
+}
+.cfx-slide {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: contain; opacity: 0;
+}
+.cfx-slide.active { opacity: 1; }
+
 /* --- CURTAIN --- */
 .cfx-curtain-panel {
     position: absolute; top: 0; width: 50%; height: 100%;
@@ -134,6 +190,8 @@
 .cfx-builder-actions button { background: #444; color: white; border: none; }
 .cfx-builder-actions button.play { background: #2f8042; }
 .cfx-builder-actions button.play:hover { background: #3aa152; }
+.cfx-builder-actions button.create { background: #2d588b; }
+.cfx-builder-actions button.create:hover { background: #3e72b1; }
 
 /* --- ELEMENTS --- */
 .cfx-text-box {

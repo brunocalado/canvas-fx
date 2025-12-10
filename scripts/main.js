@@ -20,6 +20,10 @@ class CanvasFXManager {
         this.letterboxLayer = null; // Cinematic bars
         this.curtainLayer = null;   // Theater curtains
         
+        // New Layers
+        this.countdownLayer = null; // Countdown numbers
+        this.slideshowLayer = null; // Slideshow container
+
         // Animation State
         this.shakeInterval = null; 
         this.particles = [];
@@ -27,6 +31,11 @@ class CanvasFXManager {
         this.running = false;
         this.lastTime = 0;
         this.globalRotation = 0; 
+        
+        // Interval Handles
+        this.slideshowInterval = null;
+        this.countdownInterval = null;
+        this.countdownTimeout = null;
     }
 
     /**
@@ -50,6 +59,9 @@ class CanvasFXManager {
         this.flashLayer = createLayer("canvas-fx-flash");
         this.letterboxLayer = createLayer("canvas-fx-letterbox");
         this.curtainLayer = createLayer("canvas-fx-curtain");
+        
+        this.countdownLayer = createLayer("canvas-fx-countdown");
+        this.slideshowLayer = createLayer("canvas-fx-slideshow");
         
         console.log("CanvasFX | Layers Ready");
     }
@@ -108,8 +120,53 @@ class CanvasFXManager {
     async Builder() {
         const templatePath = "modules/canvas-fx/templates/builder.html";
         
-        // Configuration for available effects in the UI
+        // Configuration for available effects in the UI - SORTED ALPHABETICALLY
         const effects = {
+            "BlackAndWhite": [
+                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
+            ],
+            "Blur": [
+                { name: "intensity", type: "number", label: "Px Radius", default: 1 },
+                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
+            ],
+            "Colorfy": [
+                { name: "color", type: "color", label: "Color", default: "#ff0000" },
+                { name: "opacity", type: "number", label: "Opacity", default: 0.3 },
+                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
+            ],
+            "Countdown": [
+                { name: "start", type: "number", label: "Start Number", default: 10 },
+                { name: "end", type: "number", label: "End Number", default: 0 },
+                { name: "color", type: "color", label: "Color", default: "#ffffff" },
+                { name: "audio", type: "text", label: "Tick Sound", default: "modules/canvas-fx/assets/audio/countdown.mp3" }
+            ],
+            "Curtain": [
+                { name: "duration", type: "number", label: "Open Time (ms)", default: 2000 },
+                { name: "image", type: "text", label: "Image URL", default: "modules/canvas-fx/assets/images/curtain.webp" }
+            ],
+            "Flash": [
+                { name: "color", type: "color", label: "Color", default: "#ffffff" },
+                { name: "duration", type: "number", label: "Duration (ms)", default: 1000 },
+                { name: "iterations", type: "number", label: "Iterations", default: 1 },
+                { name: "interval", type: "number", label: "Interval (ms)", default: 200 },
+                { name: "audio", type: "text", label: "Audio URL", default: "modules/canvas-fx/assets/audio/thunder.mp3" }
+            ],
+            "GlassShatter": [
+                { name: "count", type: "number", label: "Shards", default: 200 },
+                { name: "audio", type: "text", label: "Audio URL", default: "modules/canvas-fx/assets/audio/glass_shatter.mp3" }
+            ],
+            "Letterbox": [
+                { name: "active", type: "checkbox", label: "Active", default: true },
+                { name: "height", type: "text", label: "Height", default: "12vh" }
+            ],
+            "NightVision": [
+                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
+            ],
+            "Pulsate": [
+                { name: "intensity", type: "number", label: "Intensity (1-5)", default: 2 },
+                { name: "duration", type: "number", label: "Beat Time (ms)", default: 1000 },
+                { name: "iterations", type: "number", label: "Iterations", default: 5 }
+            ],
             "Rain": [
                 { name: "content", type: "text", label: "Emoji/Text", default: "🔥" },
                 { name: "count", type: "number", label: "Count (Burst)", default: 80 },
@@ -123,43 +180,13 @@ class CanvasFXManager {
                 { name: "count", type: "number", label: "Count (Burst)", default: 80 },
                 { name: "speed", type: "number", label: "Speed", default: 300 },
                 { name: "scale", type: "number", label: "Scale", default: 1 },
-                { name: "time", type: "number", label: "Duration (Emit)", default: 3 }
-            ],
-            "ScreenShake": [
-                { name: "intensity", type: "select", label: "Intensity", options: ["mild", "heavy", "extreme"], default: "heavy" },
-                { name: "duration", type: "number", label: "Duration (ms)", default: 500 }
-            ],
-            "GlassShatter": [
-                { name: "count", type: "number", label: "Shards", default: 200 },
-                { name: "audio", type: "text", label: "Audio URL", default: "modules/canvas-fx/assets/audio/glass_shatter.mp3" }
+                { name: "time", type: "number", label: "Duration (Emit)", default: 3 },
+                { name: "direction", type: "select", label: "Direction", options: ["top-bottom", "bottom-top", "left-right", "right-left"], default: "top-bottom" }
             ],
             "ScreenBorder": [
                 { name: "active", type: "checkbox", label: "Active", default: true },
                 { name: "color", type: "color", label: "Color", default: "#ff0000" },
                 { name: "thickness", type: "number", label: "Thickness", default: 20 }
-            ],
-            "Flash": [
-                { name: "color", type: "color", label: "Color", default: "#ffffff" },
-                { name: "duration", type: "number", label: "Duration (ms)", default: 1000 },
-                { name: "iterations", type: "number", label: "Iterations", default: 1 },
-                { name: "interval", type: "number", label: "Interval (ms)", default: 200 },
-                { name: "audio", type: "text", label: "Audio URL", default: "modules/canvas-fx/assets/audio/thunder.mp3" }
-            ],
-            "Letterbox": [
-                { name: "active", type: "checkbox", label: "Active", default: true },
-                { name: "height", type: "text", label: "Height", default: "12vh" }
-            ],
-            "Curtain": [
-                { name: "duration", type: "number", label: "Open Time (ms)", default: 2000 },
-                { name: "image", type: "text", label: "Image URL", default: "modules/canvas-fx/assets/images/curtain.webp" }
-            ],
-            "Text": [
-                { name: "content", type: "text", label: "Message", default: "VICTORY" },
-                { name: "color", type: "text", label: "Color", default: "gold" },
-                { name: "backgroundColor", type: "color", label: "Background", default: "#000000" },
-                { name: "fill", type: "select", label: "Fill Mode", options: ["box", "band", "full"], default: "full" },
-                { name: "fontFamily", type: "text", label: "Font Family", default: "Impact, sans-serif" },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
             ],
             "ScreenCover": [
                 { name: "content", type: "text", label: "Image/Video URL", default: "modules/canvas-fx/assets/images/light-vs-dark.webp" },
@@ -167,34 +194,32 @@ class CanvasFXManager {
                 { name: "opacity", type: "number", label: "Opacity", default: 1.0 },
                 { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
             ],
+            "ScreenShake": [
+                { name: "intensity", type: "select", label: "Intensity", options: ["mild", "heavy", "extreme"], default: "heavy" },
+                { name: "duration", type: "number", label: "Duration (ms)", default: 500 }
+            ],
+            "Slideshow": [
+                { name: "content", type: "text", label: "Folder Path", default: "modules/canvas-fx/assets/images/slideshow" },
+                { name: "interval", type: "number", label: "Slide Time (sec)", default: 3 },
+                { name: "fade", type: "number", label: "Crossfade (ms)", default: 1000 }
+            ],
             "Spin": [
                 { name: "angle", type: "number", label: "Angle", default: 360 },
                 { name: "duration", type: "number", label: "Duration (ms)", default: 2000 },
                 { name: "direction", type: "select", label: "Direction", options: ["clockwise", "counter-clockwise"], default: "clockwise" }
             ],
-            "Pulsate": [
-                { name: "intensity", type: "number", label: "Intensity (1-5)", default: 2 },
-                { name: "duration", type: "number", label: "Beat Time (ms)", default: 1000 },
-                { name: "iterations", type: "number", label: "Iterations", default: 5 }
-            ],
-            "Colorfy": [
-                { name: "color", type: "color", label: "Color", default: "#ff0000" },
-                { name: "opacity", type: "number", label: "Opacity", default: 0.3 },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
+            "Text": [
+                { name: "content", type: "text", label: "Message", default: "VICTORY" },
+                { name: "color", type: "text", label: "Color", default: "gold" },
+                { name: "backgroundColor", type: "color", label: "Background", default: "#000000" },
+                { name: "fill", type: "select", label: "Fill Mode", options: ["box", "band", "full"], default: "full" },
+                { name: "fontFamily", type: "text", label: "Font Family", default: "Impact, sans-serif" },
+                { name: "animation", type: "select", label: "Animation", options: ["none", "pulse", "shake"], default: "none" },
+                { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
             ],
             "Vignette": [
                 { name: "intensity", type: "number", label: "Intensity", default: 0.8 },
                 { name: "color", type: "text", label: "Color", default: "black" },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
-            ],
-            "Blur": [
-                { name: "intensity", type: "number", label: "Px Radius", default: 1 },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
-            ],
-            "NightVision": [
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
-            ],
-            "BlackAndWhite": [
                 { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
             ]
         };
@@ -204,13 +229,14 @@ class CanvasFXManager {
         const d = new Dialog({
             title: "Canvas FX - Builder",
             content: content,
-            buttons: { close: { label: "Close" } },
+            buttons: {}, // Removed standard buttons
             render: (html) => {
                 const effectSelect = html.find("#cfx-builder-select");
                 
-                // Show initial effect fields
+                // Show initial effect fields (BlackAndWhite is now first alphabetically)
+                const firstEffect = Object.keys(effects)[0];
                 html.find(`.cfx-effect-group`).hide();
-                html.find(`.cfx-effect-group[data-effect="Rain"]`).show();
+                html.find(`.cfx-effect-group[data-effect="${firstEffect}"]`).show();
 
                 // Handle effect selection change
                 effectSelect.change((ev) => {
@@ -219,10 +245,9 @@ class CanvasFXManager {
                     html.find(`.cfx-effect-group[data-effect="${selected}"]`).show();
                     d.setPosition({ height: "auto" }); 
                 });
-
-                // Handle Play button click
-                html.find("#cfx-builder-play").click(() => {
-                    const effect = effectSelect.val();
+                
+                // Helper to get parameters
+                const getParams = (effect) => {
                     const inputs = html.find(`.cfx-effect-group[data-effect="${effect}"] input, .cfx-effect-group[data-effect="${effect}"] select`);
                     const options = {};
                     let mainContent = null;
@@ -230,8 +255,6 @@ class CanvasFXManager {
                     inputs.each((_, input) => {
                         const name = input.name;
                         let value = input.type === "checkbox" ? input.checked : input.value;
-                        
-                        // Convert numeric inputs
                         if (input.type === "number" || input.dataset.type === "number") {
                             value = parseFloat(value);
                         }
@@ -239,14 +262,56 @@ class CanvasFXManager {
                         if (name === "content") mainContent = value;
                         else options[name] = value;
                     });
+                    return { mainContent, options };
+                };
+
+                // Play Button
+                html.find("#cfx-builder-play").click(() => {
+                    const effect = effectSelect.val();
+                    const { mainContent, options } = getParams(effect);
 
                     // Trigger the selected effect
                     if (effect === "Rain") this.Rain(mainContent, options);
-                    else if (effect === "RainImage" || effect === "ScreenCover" || effect === "Text") this[effect](mainContent, options);
+                    else if (effect === "RainImage" || effect === "ScreenCover" || effect === "Text" || effect === "Slideshow") this[effect](mainContent, options);
+                    else if (effect === "Countdown") this.Countdown(options);
                     else if (this[effect]) this[effect](options);
                 });
                 
-                // Handle Clear button click
+                // Create Macro Button
+                html.find("#cfx-builder-create").click(async () => {
+                    const effect = effectSelect.val();
+                    const { mainContent, options } = getParams(effect);
+                    
+                    // Construct Command String
+                    let command = `// Canvas FX - ${effect}\n`;
+                    const optsStr = JSON.stringify(options, null, 2);
+                    
+                    if (["Rain", "RainImage", "Text", "ScreenCover", "Slideshow"].includes(effect)) {
+                         command += `CanvasFX.${effect}("${mainContent}", ${optsStr});`;
+                    } else {
+                         command += `CanvasFX.${effect}(${optsStr});`;
+                    }
+
+                    // Folder Logic
+                    const folderName = "CanvasFX Builder";
+                    let folder = game.folders.find(f => f.name === folderName && f.type === "Macro");
+                    if (!folder) {
+                        folder = await Folder.create({ name: folderName, type: "Macro" });
+                    }
+
+                    // Create Macro
+                    await Macro.create({
+                        name: `CFX: ${effect}`,
+                        type: "script",
+                        command: command,
+                        folder: folder.id,
+                        img: "icons/svg/d20.svg"
+                    });
+                    
+                    ui.notifications.info(`CanvasFX: Macro "CFX: ${effect}" created!`);
+                });
+                
+                // Clear Button
                 html.find("#cfx-builder-clear").click(() => {
                     this.Clear();
                 });
@@ -279,6 +344,45 @@ class CanvasFXManager {
     Vignette(options = {}) { this.emit("filter_vignette", options); }
     Blur(options = {}) { this.emit("filter_blur", options); }
     
+    // New Functions
+    Countdown(options = {}) { 
+        // Validation
+        let start = options.start !== undefined ? options.start : 10;
+        let end = options.end !== undefined ? options.end : 0;
+        if (start < 0) start = 0; if (start > 1000) start = 1000;
+        if (end < 0) end = 0; if (end > 1000) end = 1000;
+        
+        this.emit("countdown", { start, end, ...options }); 
+    }
+
+    async Slideshow(path, options = {}) {
+        // Resolve images on the initiator client (usually GM)
+        // Fixed: Use "data" source for User Data (where modules typically live)
+        try {
+            const result = await FilePicker.browse("data", path);
+            const images = result.files.filter(f => f.match(/.(png|jpg|jpeg|webp|gif|webm)$/i));
+            
+            if (images.length === 0) {
+                ui.notifications.warn("CanvasFX: No images found in " + path);
+                return;
+            }
+            
+            // Send the list of images to everyone
+            this.emit("slideshow", { images, ...options });
+        } catch (err) {
+            console.error("CanvasFX | Slideshow Error:", err);
+            ui.notifications.error("CanvasFX: Could not access folder " + path + ". Check console for details.");
+        }
+    }
+
+    /**
+     * Helper to wait for N seconds.
+     * usage: await CanvasFX.Delay(2);
+     */
+    async Delay(seconds) {
+        return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+    }
+
     Clear() { this.emit("clear", {}, false); }
 
     /* --- SOCKET HANDLING --- */
@@ -304,8 +408,11 @@ class CanvasFXManager {
 
         this.initialize();
         
-        // Handle audio playback (excluding border effect)
-        if (data.audio && action !== "border") this.playSound(data.audio, { volume: data.volume });
+        // Handle audio playback (excluding border effect, countdown)
+        // Countdown handles its own audio per tick
+        if (data.audio && action !== "border" && action !== "countdown") {
+            this.playSound(data.audio, { volume: data.volume });
+        }
 
         try {
             switch (action) {
@@ -325,6 +432,8 @@ class CanvasFXManager {
                 case "filter_bw": this.handleBlackAndWhite(data); break;
                 case "filter_vignette": this.handleVignette(data); break;
                 case "filter_blur": this.handleBlur(data); break;
+                case "countdown": this.handleCountdown(data); break;
+                case "slideshow": this.handleSlideshow(data); break;
                 case "clear": this.handleClear(); break;
             }
         } catch (e) {
@@ -357,7 +466,13 @@ class CanvasFXManager {
     handleClear() {
         // Stop active loops
         this.running = false;
+        
+        // Clear intervals/timeouts
         if (this.shakeInterval) clearInterval(this.shakeInterval);
+        if (this.slideshowInterval) { clearInterval(this.slideshowInterval); this.slideshowInterval = null; }
+        if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
+        if (this.countdownTimeout) { clearTimeout(this.countdownTimeout); this.countdownTimeout = null; }
+
         this.particles = [];
         this.emitters = [];
 
@@ -369,6 +484,8 @@ class CanvasFXManager {
         if (this.flashLayer) { this.flashLayer.style.display = "none"; this.flashLayer.style.transition = ""; }
         if (this.letterboxLayer) { this.letterboxLayer.innerHTML = ""; this.letterboxLayer.style.display = "none"; }
         if (this.curtainLayer) { this.curtainLayer.innerHTML = ""; this.curtainLayer.style.display = "none"; }
+        if (this.countdownLayer) { this.countdownLayer.innerHTML = ""; this.countdownLayer.style.display = "none"; }
+        if (this.slideshowLayer) { this.slideshowLayer.innerHTML = ""; this.slideshowLayer.style.display = "none"; }
         
         // Remove filters
         this._resetFilters();
@@ -379,6 +496,153 @@ class CanvasFXManager {
         this.globalRotation = 0;
 
         console.log("CanvasFX | Cleared all effects.");
+    }
+    
+    // --- SLIDESHOW ---
+    handleSlideshow(data) {
+        if (!this.slideshowLayer) return;
+        const images = data.images;
+        if (!images || images.length === 0) return;
+        
+        const interval = (data.interval || 3) * 1000;
+        const fadeTime = data.fade || 1000;
+        
+        this.slideshowLayer.innerHTML = "";
+        this.slideshowLayer.style.display = "block";
+        
+        // Create two buffers for crossfading
+        const img1 = document.createElement("img");
+        const img2 = document.createElement("img");
+        
+        img1.className = "cfx-slide active";
+        img2.className = "cfx-slide next";
+        
+        // Setup CSS transition
+        const transitionCSS = `opacity ${fadeTime}ms ease-in-out`;
+        img1.style.transition = transitionCSS;
+        img2.style.transition = transitionCSS;
+        
+        this.slideshowLayer.appendChild(img1);
+        this.slideshowLayer.appendChild(img2);
+        
+        let currentIndex = 0;
+        let activeBuffer = 1; // 1 or 2
+        
+        // Initial image
+        img1.src = images[0];
+        
+        if (images.length === 1) {
+             // Just one image, allow it to stay for interval then clear?
+             // Or just show it. Let's show it, then clear after interval.
+             this.slideshowInterval = setTimeout(() => {
+                 this.handleClear();
+             }, interval);
+             return; 
+        }
+        
+        // Start loop
+        const nextSlide = () => {
+            // Check if we reached the end
+            if (currentIndex >= images.length - 1) {
+                // We just finished showing the last slide.
+                // Wait one more interval so the last slide can be seen, then clear.
+                clearInterval(this.slideshowInterval);
+                this.slideshowInterval = setTimeout(() => {
+                    this.handleClear();
+                }, interval);
+                return;
+            }
+
+            currentIndex++;
+            const nextImage = images[currentIndex];
+            
+            if (activeBuffer === 1) {
+                img2.src = nextImage;
+                img2.classList.add("active"); img2.classList.remove("next");
+                img1.classList.remove("active"); img1.classList.add("next");
+                activeBuffer = 2;
+            } else {
+                img1.src = nextImage;
+                img1.classList.add("active"); img1.classList.remove("next");
+                img2.classList.remove("active"); img2.classList.add("next");
+                activeBuffer = 1;
+            }
+        };
+        
+        if (this.slideshowInterval) clearInterval(this.slideshowInterval);
+        this.slideshowInterval = setInterval(nextSlide, interval);
+    }
+
+    // --- COUNTDOWN ---
+    handleCountdown(data) {
+        if (!this.countdownLayer) return;
+        
+        // Ensure integers
+        let startVal = parseInt(data.start);
+        let endVal = parseInt(data.end);
+        if (isNaN(startVal)) startVal = 10;
+        if (isNaN(endVal)) endVal = 0;
+
+        const color = data.color || "white";
+        const audioPath = data.audio;
+        
+        // Reset layer
+        this.countdownLayer.innerHTML = "";
+        this.countdownLayer.style.display = "flex";
+        
+        // Clear old intervals
+        if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
+        if (this.countdownTimeout) { clearTimeout(this.countdownTimeout); this.countdownTimeout = null; }
+        
+        const span = document.createElement("span");
+        span.style.color = color;
+        span.innerText = startVal;
+        
+        // Apply initial pulse
+        span.classList.add("cfx-pulse-tick");
+        
+        this.countdownLayer.appendChild(span);
+        
+        let currentVal = startVal;
+        const direction = startVal > endVal ? -1 : 1;
+        
+        // Trigger sound for first number
+        if (audioPath) this.playSound(audioPath, { volume: 0.8 });
+        
+        // If already at end, just show for 1s then hide
+        if (startVal === endVal) {
+             this.countdownTimeout = setTimeout(() => {
+                this.countdownLayer.style.display = "none";
+             }, 1000);
+             return;
+        }
+
+        // Advance 1 step every 1 second
+        this.countdownInterval = setInterval(() => {
+            // Update value
+            currentVal += direction;
+            span.innerText = currentVal;
+            
+            // Pulse Animation Trigger
+            span.classList.remove("cfx-pulse-tick");
+            void span.offsetWidth; // Force Reflow
+            span.classList.add("cfx-pulse-tick");
+            
+            // Play Sound
+            if (audioPath) this.playSound(audioPath, { volume: 0.8 });
+
+            // Check if finished
+            if (currentVal === endVal) {
+                clearInterval(this.countdownInterval);
+                this.countdownInterval = null;
+                
+                // Wait 1 second showing the final number, then remove
+                this.countdownTimeout = setTimeout(() => {
+                     this.countdownLayer.style.display = "none";
+                     this.countdownLayer.innerHTML = "";
+                }, 1000);
+            }
+        }, 1000);
     }
 
     handleShatter(options) {
@@ -469,6 +733,12 @@ class CanvasFXManager {
         this.textLayer.innerHTML = ""; this.textLayer.style.display = "flex"; this.textLayer.style.opacity = "0";
         const textBox = document.createElement("div"); textBox.className = "cfx-text-box"; textBox.innerText = content; textBox.style.color = color; textBox.style.backgroundColor = bg; textBox.style.fontFamily = fontFamily;
         if (fill === "band") { textBox.style.width = "100%"; textBox.style.borderRadius = "0"; textBox.style.left = "0"; } else if (fill === "full") { textBox.style.width = "100vw"; textBox.style.height = "100vh"; textBox.style.borderRadius = "0"; textBox.style.left = "0"; textBox.style.top = "0"; textBox.style.display = "flex"; textBox.style.justifyContent = "center"; textBox.style.alignItems = "center"; }
+        
+        // Animations
+        const anim = data.animation || "none";
+        if (anim === "pulse") textBox.classList.add("cfx-anim-pulse");
+        else if (anim === "shake") textBox.classList.add("cfx-anim-shake");
+
         this.textLayer.appendChild(textBox);
         requestAnimationFrame(() => { this.textLayer.style.opacity = "1"; });
         if (duration > 0) { setTimeout(() => { this.textLayer.style.opacity = "0"; setTimeout(() => { this.textLayer.style.display = "none"; this.textLayer.innerHTML = ""; }, 500); }, duration); }
