@@ -13,7 +13,7 @@ To trigger effects during your game, you will need to create simple script macro
 ### 1. Explore & Test
 Before writing your macros, you can use these internal tools to preview effects and understand how they look:
 
-* **`CanvasFX.Builder()`** Opens a visual interface where you can tweak settings (like speed, color, intensity) and play effects immediately to test them.
+* **`CanvasFX.Builder()`** Opens a visual interface where you can tweak settings, play effects immediately, and **automatically create macros** with one click.
 * **`CanvasFX.Demo()`** Opens a gallery of pre-configured examples to show you what is possible.
 
 ### 2. Create Your Effects
@@ -40,9 +40,9 @@ By using the simple commands found in the Wiki, you can create:
 
 * **🌧️ Particles:** Rain emojis (🔥, ❄️, 💰), text, or custom images.
 * **💥 Impact:** Screen shakes, glass shattering simulations, and bright flashes (lightning/explosions).
-* **🎬 Cinematics:** Cinematic "Letterbox" bars, theater curtains, or full-screen image/video covers.
+* **🎬 Cinematics:** Cinematic "Letterbox" bars, theater curtains, **slideshows**, or full-screen image/video covers.
 * **🎨 Filters:** Full-screen effects like **Blur**, **Night Vision**, **Black & White**, **Vignette**, or Color Tints.
-* **📢 Alerts:** Giant text overlays ("Victory!") or pulsing screen borders (Low Health).
+* **📢 Alerts:** Giant animated text overlays (Pulse/Shake), pulsing screen borders (Low Health), or **dramatic countdowns**.
 * **🔄 Motion:** Screen spinning or pulsating (heartbeat effect).
 * **🔊 Audio:** Automatic sound synchronization with visual triggers.
 
