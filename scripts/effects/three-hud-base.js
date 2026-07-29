@@ -17,6 +17,12 @@
  * generic point-burst particle system (spawn a cloud of points at a given set
  * of origins and let it explode outward and fade).
  *
+ * On top of those there is a rectangular-HUD set: a chamfered frame with real
+ * bevelled thickness (plus the path helpers it is built from), greeble plates
+ * that pin along a frame's outline, radial warp streaks, procedurally drawn
+ * instrument panels, PCB-style circuit traces, large tick dial rings, and an
+ * anamorphic center flare.
+ *
  * A subclass composes whichever blocks it needs inside `_buildScene(THREE)`
  * and drives its own choreography from `_animate(t, dt)`; this base class
  * only prescribes the lifecycle, not the timeline.
@@ -257,6 +263,23 @@ export class ThreeHudEffectBase {
         ];
         const pts = [];
         for (const [a, b] of edges) pts.push(...c[a], ...c[b]);
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+        return geo;
+    }
+
+    /** Flat XY lattice centered on the origin — interior detail for a panel or plate. */
+    _gridGeo(THREE, w, h, cols, rows) {
+        const pts = [];
+        const x = w / 2, y = h / 2;
+        for (let i = 0; i <= cols; i++) {
+            const px = -x + (w * i) / cols;
+            pts.push(px, -y, 0, px, y, 0);
+        }
+        for (let i = 0; i <= rows; i++) {
+            const py = -y + (h * i) / rows;
+            pts.push(-x, py, 0, x, py, 0);
+        }
         const geo = new THREE.BufferGeometry();
         geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
         return geo;
@@ -582,6 +605,500 @@ export class ThreeHudEffectBase {
     _updateDepthGrids({ grid, gridTop }, t, kick) {
         grid.material.opacity = clamp(0.08 + 0.03 * Math.sin(t * 1.3) + kick * 0.06, 0, 1);
         gridTop.material.opacity = clamp(0.06 + 0.02 * Math.sin(t * 1.1 + 2) + kick * 0.05, 0, 1);
+    }
+
+    /* --- Chamfered frame: paths and the surfaces built from them --- */
+
+    /**
+     * Chamfered ("cut corner") rectangle as a **counter-clockwise** list of
+     * `[x, y]` points. Winding matters: `_offsetPath` derives its inward
+     * direction from it.
+     */
+    _chamferRectPath(w, h, cut) {
+        const x = w / 2, y = h / 2;
+        return [
+            [-x + cut, -y], [x - cut, -y], [x, -y + cut], [x, y - cut],
+            [x - cut, y], [-x + cut, y], [-x, y - cut], [-x, -y + cut]
+        ];
+    }
+
+    /**
+     * Insets a convex CCW path by `d` along each vertex's angle bisector, so the
+     * result keeps a constant perpendicular gap from the original on every edge.
+     * Scaling the path instead would pinch the chamfers, since a chamfer sits at
+     * a different distance from the center than the flat edges do.
+     */
+    _offsetPath(path, d) {
+        const n = path.length;
+        const out = [];
+        for (let i = 0; i < n; i++) {
+            const p = path[i];
+            const prev = path[(i - 1 + n) % n];
+            const next = path[(i + 1) % n];
+            const e1x = p[0] - prev[0], e1y = p[1] - prev[1];
+            const e2x = next[0] - p[0], e2y = next[1] - p[1];
+            const l1 = Math.hypot(e1x, e1y) || 1, l2 = Math.hypot(e2x, e2y) || 1;
+            // Left-hand normal of a CCW edge points into the polygon
+            const n1x = -e1y / l1, n1y = e1x / l1;
+            const n2x = -e2y / l2, n2y = e2x / l2;
+            let bx = n1x + n2x, by = n1y + n2y;
+            const bl = Math.hypot(bx, by) || 1;
+            bx /= bl; by /= bl;
+            // Miter correction: the bisector is shorter than the edge normal by
+            // cos(half-angle), so divide to land at the requested gap.
+            const cosHalf = clamp(bx * n1x + by * n1y, 0.25, 1);
+            out.push([p[0] + bx * d / cosHalf, p[1] + by * d / cosHalf]);
+        }
+        return out;
+    }
+
+    /**
+     * Closed outline as LineSegments pairs rather than a LineLoop, so a
+     * `setDrawRange` reveal grows the outline end-to-end instead of collapsing
+     * it into a closing chord.
+     */
+    _pathSegmentsGeo(THREE, path, z = 0) {
+        const pts = [];
+        for (let i = 0; i < path.length; i++) {
+            const a = path[i], b = path[(i + 1) % path.length];
+            pts.push(a[0], a[1], z, b[0], b[1], z);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+        return geo;
+    }
+
+    /** Filled band between two same-length paths — the frame's glass face. */
+    _bandGeo(THREE, outer, inner, z = 0) {
+        const pts = [];
+        for (let i = 0; i < outer.length; i++) {
+            const j = (i + 1) % outer.length;
+            const o1 = outer[i], o2 = outer[j], i1 = inner[i], i2 = inner[j];
+            pts.push(o1[0], o1[1], z, o2[0], o2[1], z, i2[0], i2[1], z);
+            pts.push(o1[0], o1[1], z, i2[0], i2[1], z, i1[0], i1[1], z);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+        return geo;
+    }
+
+    /** Extruded wall of one path between two depths — reads as the frame's bevel. */
+    _wallGeo(THREE, path, z0, z1) {
+        const pts = [];
+        for (let i = 0; i < path.length; i++) {
+            const a = path[i], b = path[(i + 1) % path.length];
+            pts.push(a[0], a[1], z0, b[0], b[1], z0, b[0], b[1], z1);
+            pts.push(a[0], a[1], z0, b[0], b[1], z1, a[0], a[1], z1);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+        return geo;
+    }
+
+    /**
+     * The hero element: a chamfered rectangular frame with real thickness —
+     * a front and back glass band, an extruded outer bevel wall, and crisp
+     * edge outlines on both the outer and inner contour at both depths.
+     *
+     * `outlines` are returned separately because the intro reveals them with
+     * `setDrawRange` before the solid surfaces fade in.
+     */
+    _addHudFrame(THREE, master, accent, accent2, {
+        w = 22, h = 12, cut = 2.2, band = 1.15, depth = 0.9, z = 0, rim = null
+    } = {}) {
+        const group = new THREE.Group();
+        group.position.z = z;
+
+        const outer = this._chamferRectPath(w, h, cut);
+        const inner = this._offsetPath(outer, band);
+        const zf = 0, zb = -depth;
+        const rimColor = rim ?? accent;
+
+        // Faces: front reads brighter, the recessed back adds depth without
+        // competing with the text that sits inside the opening.
+        const faceMat = this._glassMat(THREE, accent2, 0.26);
+        const backMat = this._glassMat(THREE, accent2, 0.14);
+        const face = new THREE.Mesh(this._bandGeo(THREE, outer, inner, zf), faceMat);
+        const back = new THREE.Mesh(this._bandGeo(THREE, outer, inner, zb), backMat);
+
+        // Bevel walls. The inner one is much hotter: light pools along the lip of
+        // the opening, and that gradient is what makes the band read as a solid
+        // machined edge instead of a flat outlined ribbon.
+        const wallOuterMat = this._glassMat(THREE, accent, 0.16);
+        const wallInnerMat = this._glassMat(THREE, accent, 0.30);
+        const wallOuter = new THREE.Mesh(this._wallGeo(THREE, outer, zf, zb), wallOuterMat);
+        const wallInner = new THREE.Mesh(this._wallGeo(THREE, inner, zf, zb), wallInnerMat);
+
+        const outlines = [];
+        const mkLine = (path, lz, color, opacity) => {
+            const mat = this._lineMat(THREE, color, opacity);
+            const line = new THREE.LineSegments(this._pathSegmentsGeo(THREE, path, lz), mat);
+            outlines.push({ line, mat, baseOpacity: opacity, total: path.length * 2 });
+            group.add(line);
+            return line;
+        };
+        mkLine(outer, zf, accent, 0.95);
+        mkLine(inner, zf, rimColor, 1.0);         // Hot lip along the opening
+        mkLine(this._offsetPath(inner, 0.44), zf, accent, 0.34); // Fine inset rule
+        mkLine(outer, zb, accent2, 0.4);
+        mkLine(inner, zb, accent2, 0.5);
+
+        group.add(face, back, wallOuter, wallInner);
+        master.add(group);
+
+        return {
+            group, outer, inner, outlines,
+            surfaces: [faceMat, backMat, wallOuterMat, wallInnerMat],
+            surfaceBase: [0.26, 0.14, 0.16, 0.30]
+        };
+    }
+
+    /**
+     * Angular plates and notches pinned along a frame path. Without these the
+     * chamfered outline reads as a plain box; the greebles are what sell it as
+     * built hardware. `spec` entries are `[t, width, height, out]` where `t` is
+     * a 0..1 position along the path perimeter and `out` pushes the plate
+     * outward (positive) or inward (negative) from the edge.
+     */
+    _addFrameGreebles(THREE, group, path, accent, spec, { z = 0.02 } = {}) {
+        // Arc-length table, so `t` spaces plates evenly along the outline
+        const n = path.length;
+        const cum = [0];
+        for (let i = 0; i < n; i++) {
+            const a = path[i], b = path[(i + 1) % n];
+            cum.push(cum[i] + Math.hypot(b[0] - a[0], b[1] - a[1]));
+        }
+        const perim = cum[n];
+        const sample = (t) => {
+            const d = ((t % 1) + 1) % 1 * perim;
+            let i = 0;
+            while (i < n - 1 && cum[i + 1] < d) i++;
+            const a = path[i], b = path[(i + 1) % n];
+            const seg = cum[i + 1] - cum[i] || 1;
+            const f = (d - cum[i]) / seg;
+            const ex = (b[0] - a[0]) / seg, ey = (b[1] - a[1]) / seg;
+            return { x: a[0] + (b[0] - a[0]) * f, y: a[1] + (b[1] - a[1]) * f, ex, ey };
+        };
+
+        const mats = [];
+        for (const [t, pw, ph, out] of spec) {
+            const { x, y, ex, ey } = sample(t);
+            // Inward normal of a CCW edge; `out` flips it to push plates outward
+            const nx = -ey, ny = ex;
+            const mat = this._lineMat(THREE, accent, 0.8);
+            const half = pw / 2;
+            // Trapezoid plate: the angled shoulders are what make it read as a
+            // machined panel rather than a rectangle.
+            const shoulder = Math.min(half * 0.45, ph * 0.9);
+            const local = [
+                [-half, 0], [half, 0],
+                [half - shoulder, ph], [-half + shoulder, ph]
+            ];
+            const pts = [];
+            for (let i = 0; i < local.length; i++) {
+                const p1 = local[i], p2 = local[(i + 1) % local.length];
+                for (const p of [p1, p2]) {
+                    pts.push(
+                        x + ex * p[0] + nx * (p[1] + out),
+                        y + ey * p[0] + ny * (p[1] + out),
+                        z
+                    );
+                }
+            }
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+            const line = new THREE.LineSegments(geo, mat);
+            group.add(line);
+            mats.push(mat);
+        }
+        return mats;
+    }
+
+    /* --- Warp streaks, telemetry, traces, dial rings, flare --- */
+
+    /**
+     * Radial "warp" streaks firing out of the center. Vertex colors taper each
+     * streak from a bright inner end to nothing at the outer end, which avoids
+     * needing one material (and one draw call) per streak.
+     */
+    _addRadialStreaks(THREE, master, color, count = 90, { rMin = 0.2, rMax = 26, z = -6 } = {}) {
+        const pos = new Float32Array(count * 6);
+        const col = new Float32Array(count * 6);
+        const data = {
+            angle: new Float32Array(count), speed: new Float32Array(count),
+            len: new Float32Array(count), offset: new Float32Array(count),
+            z: new Float32Array(count), bright: new Float32Array(count)
+        };
+        for (let i = 0; i < count; i++) {
+            data.angle[i] = rand(0, Math.PI * 2);
+            data.speed[i] = rand(9, 30);
+            data.len[i] = rand(2.5, 9);
+            data.offset[i] = rand(0, rMax);
+            data.z[i] = z + rand(-4, 4);
+            data.bright[i] = rand(0.5, 1.15);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+        geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+        const mat = new THREE.LineBasicMaterial({
+            vertexColors: true, transparent: true, opacity: 1,
+            blending: THREE.AdditiveBlending, depthWrite: false
+        });
+        const lines = new THREE.LineSegments(geo, mat);
+        master.add(lines);
+        return { geo, mat, data, count, color, rMin, rMax };
+    }
+
+    /**
+     * @param {number} intensity 0..1 master fade — the streaks are a burst, so
+     *   the caller ramps this down once the frame has formed.
+     */
+    _updateRadialStreaks(streaks, t, intensity) {
+        const { geo, data, count, color, rMin, rMax } = streaks;
+        const pos = geo.attributes.position.array;
+        const col = geo.attributes.color.array;
+        for (let i = 0; i < count; i++) {
+            const span = rMax - rMin;
+            const r0 = rMin + ((data.offset[i] + t * data.speed[i]) % span);
+            const r1 = r0 + data.len[i];
+            const ca = Math.cos(data.angle[i]), sa = Math.sin(data.angle[i]);
+            pos[i * 6] = ca * r0; pos[i * 6 + 1] = sa * r0; pos[i * 6 + 2] = data.z[i];
+            pos[i * 6 + 3] = ca * r1; pos[i * 6 + 4] = sa * r1; pos[i * 6 + 5] = data.z[i];
+
+            // Fade in as it leaves the core and out as it approaches the rim, so
+            // streaks never pop into or out of existence mid-screen.
+            const life = clamp((r0 - rMin) / span, 0, 1);
+            const env = Math.sin(life * Math.PI) ** 0.7;
+            const a = data.bright[i] * env * intensity;
+            col[i * 6] = color.r * a; col[i * 6 + 1] = color.g * a; col[i * 6 + 2] = color.b * a;
+            col[i * 6 + 3] = 0; col[i * 6 + 4] = 0; col[i * 6 + 5] = 0;
+        }
+        geo.attributes.position.needsUpdate = true;
+        geo.attributes.color.needsUpdate = true;
+    }
+
+    /**
+     * Procedural "instrument readout" texture — dashed pseudo-text rows, a bar
+     * chart, a plotted trace and a dial. Drawn white so a single generator can
+     * be tinted per panel by its material color.
+     */
+    _telemetryTexture(THREE, seed = 1) {
+        const S = 256;
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = S;
+        const ctx = canvas.getContext("2d");
+        // Deterministic LCG: panels must look hand-authored but stay identical
+        // between runs, so the layout can't drift frame to frame.
+        let s = (seed * 9301 + 49297) % 233280;
+        const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+
+        ctx.strokeStyle = "rgba(255,255,255,0.85)";
+        ctx.fillStyle = "rgba(255,255,255,0.85)";
+        ctx.lineWidth = 2;
+
+        // Header rule plus a title block of dashes
+        ctx.fillRect(10, 12, S - 20, 3);
+        for (let i = 0; i < 5; i++) ctx.fillRect(12 + i * 16, 24, 9 + rnd() * 5, 5);
+
+        // Pseudo-text rows
+        for (let row = 0; row < 6; row++) {
+            const y = 44 + row * 11;
+            let x = 12;
+            const cells = 3 + Math.floor(rnd() * 4);
+            for (let i = 0; i < cells; i++) {
+                const w = 12 + rnd() * 34;
+                ctx.globalAlpha = 0.35 + rnd() * 0.5;
+                ctx.fillRect(x, y, w, 4);
+                x += w + 6;
+                if (x > S - 30) break;
+            }
+        }
+        ctx.globalAlpha = 1;
+
+        // Bar chart
+        const bx = 12, by = 190, bh = 46;
+        ctx.globalAlpha = 0.8;
+        for (let i = 0; i < 11; i++) {
+            const bhh = 6 + rnd() * bh;
+            ctx.fillRect(bx + i * 10, by + bh - bhh, 6, bhh);
+        }
+
+        // Plotted trace in a bounded box
+        ctx.globalAlpha = 0.9;
+        ctx.strokeRect(140, 128, 104, 52);
+        ctx.beginPath();
+        for (let i = 0; i <= 12; i++) {
+            const px = 140 + (i / 12) * 104;
+            const py = 128 + 10 + rnd() * 32;
+            i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Dial with tick marks
+        const cx = 190, cy = 218, r = 26;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+        for (let i = 0; i < 24; i++) {
+            const a = (i / 24) * Math.PI * 2;
+            const r0 = r - (i % 6 === 0 ? 9 : 4);
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0);
+            ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+            ctx.stroke();
+        }
+        const na = rnd() * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(na) * (r - 6), cy + Math.sin(na) * (r - 6));
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        const tex = new THREE.CanvasTexture(canvas);
+        this._three?.textures.push(tex);
+        return tex;
+    }
+
+    /**
+     * Instrument panels placed inside the frame. `spec` entries are
+     * `[x, y, w, h, seed, opacity]`.
+     */
+    _addTelemetryPanels(THREE, master, accent, spec, { z = -0.35 } = {}) {
+        const panels = [];
+        for (const [px, py, pw, ph, seed, opacity] of spec) {
+            const tex = this._telemetryTexture(THREE, seed);
+            const mat = new THREE.MeshBasicMaterial({
+                map: tex, color: accent, transparent: true, opacity: 0,
+                blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide
+            });
+            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), mat);
+            mesh.position.set(px, py, z);
+            master.add(mesh);
+            panels.push({
+                mesh, mat, baseOpacity: opacity,
+                phase: rand(0, Math.PI * 2), flicker: rand(2.5, 6)
+            });
+        }
+        return panels;
+    }
+
+    /** @param {number} reveal 0..1 fade-in for the whole set. */
+    _updateTelemetryPanels(panels, t, reveal, kick = 0) {
+        for (const p of panels) {
+            // Occasional dropout: a readout that never blinks looks like a decal
+            const blink = Math.sin(t * p.flicker + p.phase) > 0.93 ? 0.25 : 1;
+            p.mat.opacity = clamp(p.baseOpacity * reveal * blink + kick * 0.15, 0, 1);
+        }
+    }
+
+    /**
+     * PCB-style traces radiating from a rectangular hub: each runs out along one
+     * axis, turns once, and terminates in a node dot. Ordered outward-to-inward
+     * within one geometry so a `setDrawRange` sweep draws them on in sequence.
+     */
+    _addCircuitTraces(THREE, master, accent, count = 14, {
+        hubW = 9, hubH = 4.5, reach = 8, z = -0.5
+    } = {}) {
+        const pts = [];
+        const nodes = [];
+        for (let i = 0; i < count; i++) {
+            // Evenly fanned exit angles, only lightly jittered. Fully random
+            // starts and turn directions let neighbouring traces close on each
+            // other and read as stray rectangles instead of a radiating fan.
+            const a = ((i + 0.5) / count) * Math.PI * 2 + rand(-0.07, 0.07);
+            const ca = Math.cos(a), sa = Math.sin(a);
+            // Where that direction leaves the hub rectangle
+            const hit = Math.min(hubW / Math.max(Math.abs(ca), 1e-6), hubH / Math.max(Math.abs(sa), 1e-6));
+            const x0 = ca * hit, y0 = sa * hit;
+            const sx = Math.sign(ca) || 1, sy = Math.sign(sa) || 1;
+            // Both legs travel outward, so every route is a monotonic staircase
+            const l1 = rand(1.5, reach), l2 = rand(0.7, reach * 0.75);
+            const exitsSide = Math.abs(ca) * hubH > Math.abs(sa) * hubW;
+            const midX = exitsSide ? x0 + sx * l1 : x0;
+            const midY = exitsSide ? y0 : y0 + sy * l1;
+            const endX = exitsSide ? midX : midX + sx * l2;
+            const endY = exitsSide ? midY + sy * l2 : midY;
+            const jz = z + rand(-0.6, 0.6);
+            pts.push(x0, y0, jz, midX, midY, jz);
+            pts.push(midX, midY, jz, endX, endY, jz);
+            nodes.push(endX, endY, jz);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+        const mat = this._lineMat(THREE, accent, 0.75);
+        const lines = new THREE.LineSegments(geo, mat);
+        master.add(lines);
+
+        const nodeGeo = new THREE.BufferGeometry();
+        nodeGeo.setAttribute("position", new THREE.Float32BufferAttribute(nodes, 3));
+        const nodeMat = new THREE.PointsMaterial({
+            map: this._three?.glowTex, color: accent, size: 0.42, transparent: true,
+            opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+        });
+        const nodePoints = new THREE.Points(nodeGeo, nodeMat);
+        master.add(nodePoints);
+
+        return { lines, mat, geo, nodePoints, nodeMat, total: count * 4 };
+    }
+
+    /** @param {number} reveal 0..1 draw-on progress across the whole trace set. */
+    _updateCircuitTraces(traces, t, reveal, kick = 0) {
+        traces.geo.setDrawRange(0, Math.floor(traces.total * clamp(reveal, 0, 1)));
+        traces.mat.opacity = clamp(0.32 + 0.12 * Math.sin(t * 2.1) + kick * 0.4, 0, 1) * smooth(reveal * 2);
+        // Nodes light up only once their trace has arrived
+        traces.nodeMat.opacity = clamp(smooth((reveal - 0.55) / 0.45) * (0.7 + 0.3 * Math.sin(t * 3)), 0, 1);
+    }
+
+    /** Large dial ring with radial hash marks — background scale behind the frame. */
+    _addTickRing(THREE, master, color, {
+        radius = 14, ticks = 60, tickLen = 0.7, major = 5, opacity = 0.3, z = -8, ring = true
+    } = {}) {
+        const group = new THREE.Group();
+        const mat = this._lineMat(THREE, color, opacity);
+        const pts = [];
+        for (let i = 0; i < ticks; i++) {
+            const a = (i / ticks) * Math.PI * 2;
+            const len = tickLen * (i % major === 0 ? 2.1 : 1);
+            pts.push(Math.cos(a) * radius, Math.sin(a) * radius, 0);
+            pts.push(Math.cos(a) * (radius + len), Math.sin(a) * (radius + len), 0);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+        group.add(new THREE.LineSegments(geo, mat));
+        if (ring) group.add(new THREE.LineLoop(this._circleGeo(THREE, radius, 160), mat));
+        group.position.z = z;
+        master.add(group);
+        return { group, mat, baseOpacity: opacity };
+    }
+
+    /**
+     * Anamorphic-style flare: a wide horizontal streak crossed with a round
+     * core, both additive. Fired on impact and decayed by the caller.
+     */
+    _addCenterFlare(THREE, master, glowTex, color, { z = -0.2 } = {}) {
+        const mk = (sx, sy, opacity) => {
+            const mat = new THREE.SpriteMaterial({
+                map: glowTex, color, transparent: true, opacity,
+                blending: THREE.AdditiveBlending, depthWrite: false
+            });
+            const sprite = new THREE.Sprite(mat);
+            sprite.scale.set(sx, sy, 1);
+            sprite.position.z = z;
+            master.add(sprite);
+            return { sprite, mat, sx, sy };
+        };
+        return { streak: mk(46, 1.5, 0), core: mk(9, 9, 0), vertical: mk(2.2, 20, 0) };
+    }
+
+    _updateCenterFlare(flare, kick) {
+        const k = clamp(kick, 0, 1);
+        const grow = 0.55 + 0.45 * k;
+        for (const part of [flare.streak, flare.core, flare.vertical]) {
+            part.sprite.scale.set(part.sx * grow, part.sy * grow, 1);
+        }
+        flare.streak.mat.opacity = k * 0.95;
+        flare.core.mat.opacity = k * 0.8;
+        flare.vertical.mat.opacity = k * 0.45;
     }
 
     /* --- Generic point-burst particle system --- */

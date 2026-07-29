@@ -421,7 +421,7 @@ CanvasFX.Slideshow("modules/canvas-fx/assets/images/slideshow", { interval: 5, f
 ```
 
 ### 19. Sci-Fi Level Up
-Displays a centered 3D holographic HUD (Three.js) announcing a level-up. Concentric rings, a glass-panel backdrop, a gyroscopic reactor core, and drifting particles surround crisp centered text; once the text has fully formed, particles sampled from its own glyph shape erupt outward from it.
+Displays a centered 3D holographic HUD (Three.js) announcing a level-up. A burst of warp streaks draws a chamfered HUD frame out of nothing; the outline thickens into beveled glass, instrument readouts and circuit traces populate it, and a flare at the center punches the text in. Once the text has fully formed, particles sampled from its own glyph shape erupt outward from it. Long messages are scaled down automatically so they always fit inside the frame.
 
 **Syntax:** `CanvasFX.SciFiLevelUp(options)`
 

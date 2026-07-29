@@ -100,7 +100,9 @@
     --cfx-slu-accent2: #2979ff;
 }
 
-.cfx-slu-canvas { position: absolute; top: 0; left: 0; }
+/* Class name comes from ThreeHudEffectBase's `canvasClassName` default, so it
+   is shared by every Three.js HUD effect rather than named per effect. */
+.cfx-hud-canvas { position: absolute; top: 0; left: 0; }
 
 .cfx-slu-hud {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -128,7 +130,8 @@
 
 .cfx-slu-line {
     display: flex; align-items: baseline; justify-content: center;
-    font-size: clamp(38px, 6.5vw, 88px); line-height: 1.25; white-space: nowrap;
+    /* Size comes from JS (scaled to the message length); the literal is the fallback */
+    font-size: var(--cfx-slu-fs, clamp(38px, 6.5vw, 88px)); line-height: 1.25; white-space: nowrap;
     opacity: 0; transform: scale(1.65); filter: blur(8px);
     transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
                 opacity 0.45s ease-out, filter 0.45s ease-out;
