@@ -46,6 +46,7 @@ By using the simple commands found in the Wiki, you can create:
 * **🎨 Filters:** Full-screen effects like **Blur**, **Night Vision**, **Black & White**, **Vignette**, or Color Tints.
 * **📢 Alerts:** Giant animated text overlays (Pulse/Shake), pulsing screen borders (Low Health), or **dramatic countdowns**.
 * **🔄 Motion:** Screen spinning or pulsating (heartbeat effect).
+* **🚀 Sci-Fi:** A 3D holographic "Level Up" HUD (Three.js) where the text erupts into particles once fully formed, with a solid black backdrop by default (transparent mode also available).
 * **🔊 Audio:** Automatic sound synchronization with visual triggers.
 
 ---
@@ -63,3 +64,5 @@ By using the simple commands found in the Wiki, you can create:
 Code licensed under [MIT](LICENSE).
 
 *Images and audio assets are public domain (CC0).*
+
+*Bundles [Three.js](https://threejs.org) (MIT, see `lib/LICENSE-three.md`) for the 3D effects.*

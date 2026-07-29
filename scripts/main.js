@@ -10,6 +10,7 @@ import { MODULE_ID } from "./constants.js";
 import { CanvasFXDemoApp } from "./apps/demo.js";
 import { CanvasFXBuilderApp } from "./apps/builder.js";
 import { DEMO_MACROS } from "./demo-macros.js";
+import { SciFiLevelUpEffect } from "./effects/scifi-levelup.js";
 
 const SOCKET_EVENT = `module.${MODULE_ID}`;
 
@@ -30,6 +31,7 @@ class CanvasFXManager {
         // New Layers
         this.countdownLayer = null; // Countdown numbers
         this.slideshowLayer = null; // Slideshow container
+        this.levelupLayer = null;   // Sci-Fi Level Up (Three.js)
 
         // Animation State
         this.shakeInterval = null; 
@@ -43,6 +45,9 @@ class CanvasFXManager {
         this.slideshowInterval = null;
         this.countdownInterval = null;
         this.countdownTimeout = null;
+
+        // Active Sci-Fi Level Up instance (owns its own RAF loop and WebGL context)
+        this.levelUpEffect = null;
     }
 
     /**
@@ -69,6 +74,7 @@ class CanvasFXManager {
         
         this.countdownLayer = createLayer("canvas-fx-countdown");
         this.slideshowLayer = createLayer("canvas-fx-slideshow");
+        this.levelupLayer = createLayer("canvas-fx-levelup");
         
         console.log("CanvasFX | Layers Ready");
     }
@@ -121,7 +127,11 @@ class CanvasFXManager {
         if (start < 0) start = 0; if (start > 1000) start = 1000;
         if (end < 0) end = 0; if (end > 1000) end = 1000;
         
-        this.emit("countdown", { start, end, ...options }); 
+        this.emit("countdown", { start, end, ...options });
+    }
+
+    SciFiLevelUp(options = {}) {
+        this.emit("scifi_levelup", options);
     }
 
     async Slideshow(path, options = {}) {
@@ -205,6 +215,7 @@ class CanvasFXManager {
                 case "filter_blur": this.handleBlur(data); break;
                 case "countdown": this.handleCountdown(data); break;
                 case "slideshow": this.handleSlideshow(data); break;
+                case "scifi_levelup": this.handleSciFiLevelUp(data); break;
                 case "clear": this.handleClear(); break;
             }
         } catch (e) {
@@ -247,6 +258,9 @@ class CanvasFXManager {
         this.particles = [];
         this.emitters = [];
 
+        // Stop the Sci-Fi Level Up effect (frees its WebGL context)
+        if (this.levelUpEffect) { this.levelUpEffect.dispose(); this.levelUpEffect = null; }
+
         // Clear and hide all layers
         if (this.layer) this.layer.innerHTML = "";
         if (this.borderLayer) { this.borderLayer.classList.remove("active"); this.borderLayer.style.display = "none"; this.borderLayer.style.borderWidth = ""; }
@@ -257,6 +271,7 @@ class CanvasFXManager {
         if (this.curtainLayer) { this.curtainLayer.innerHTML = ""; this.curtainLayer.style.display = "none"; }
         if (this.countdownLayer) { this.countdownLayer.innerHTML = ""; this.countdownLayer.style.display = "none"; }
         if (this.slideshowLayer) { this.slideshowLayer.innerHTML = ""; this.slideshowLayer.style.display = "none"; }
+        if (this.levelupLayer) { this.levelupLayer.innerHTML = ""; this.levelupLayer.style.display = "none"; }
         
         // Remove filters
         this._resetFilters();
@@ -342,6 +357,31 @@ class CanvasFXManager {
         
         if (this.slideshowInterval) clearInterval(this.slideshowInterval);
         this.slideshowInterval = setInterval(nextSlide, interval);
+    }
+
+    // --- SCI-FI LEVEL UP ---
+    async handleSciFiLevelUp(data) {
+        if (!this.levelupLayer) return;
+
+        // Replace any run already in progress
+        if (this.levelUpEffect) { this.levelUpEffect.dispose(); this.levelUpEffect = null; }
+        this.levelupLayer.innerHTML = "";
+        this.levelupLayer.style.display = "block";
+
+        const effect = new SciFiLevelUpEffect(this.levelupLayer, data);
+        this.levelUpEffect = effect;
+        try {
+            await effect.play();
+        } catch (err) {
+            console.error("CanvasFX | Sci-Fi Level Up failed:", err);
+        } finally {
+            // A newer run or Clear() may already own the layer by the time we finish
+            if (this.levelUpEffect === effect) {
+                this.levelUpEffect = null;
+                this.levelupLayer.style.display = "none";
+                this.levelupLayer.innerHTML = "";
+            }
+        }
     }
 
     // --- COUNTDOWN ---

@@ -113,6 +113,20 @@ export const DEMO_MACROS = [
         run: () => CanvasFX.Rain("Level Up!", { count: 20, speed: 300, time: 6, scale: 2 })
     },
     {
+        name: "Sci-Fi Level Up",
+        img: DEMO_ICON,
+        // Holographic 3D HUD (Three.js): text erupts into particles once fully formed
+        run: () => CanvasFX.SciFiLevelUp({ text: "Level Up" })
+    },
+    {
+        name: "Sci-Fi Level Up (Transparent Background)",
+        img: DEMO_ICON,
+        run: () => CanvasFX.SciFiLevelUp({
+            text: "Level Up",
+            background: "transparent"
+        })
+    },
+    {
         name: "Shake Screen (Extreme)",
         img: DEMO_ICON,
         run: () => CanvasFX.ScreenShake({

@@ -420,6 +420,35 @@ CanvasFX.Slideshow("modules/canvas-fx/assets/images/slideshow");
 CanvasFX.Slideshow("modules/canvas-fx/assets/images/slideshow", { interval: 5, fade: 2000 });
 ```
 
+### 19. Sci-Fi Level Up
+Displays a centered 3D holographic HUD (Three.js) announcing a level-up. Concentric rings, a glass-panel backdrop, a gyroscopic reactor core, and drifting particles surround crisp centered text; once the text has fully formed, particles sampled from its own glyph shape erupt outward from it.
+
+**Syntax:** `CanvasFX.SciFiLevelUp(options)`
+
+**Options:**
+- `text` (String): The message shown. Default: `"Level Up"`.
+- `background` (String): `"solid"` or `"transparent"`. Default: `"solid"`.
+- `backgroundColor` (String): Backdrop color for solid mode. Default: `"#000000"`.
+- `duration` (Number): Total seconds. `0` = auto (~9s). Always floored at a minimum of `7` seconds regardless of what's passed. Default: `0`.
+- `accent` (String): Primary hologram color. Default: `"#00e5ff"`.
+- `accent2` (String): Secondary hologram color. Default: `"#2979ff"`.
+
+```javascript
+// Simple
+CanvasFX.SciFiLevelUp();
+```
+
+```javascript
+// Complete: transparent over the game canvas, custom text and colors
+CanvasFX.SciFiLevelUp({
+    text: "Rank Up",
+    background: "transparent",
+    duration: 10,
+    accent: "#ff5500",
+    accent2: "#ffaa00"
+});
+```
+
 ### Utility: Delay
 Pauses the macro execution for a set amount of time. Useful for chaining effects.
 

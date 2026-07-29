@@ -73,6 +73,12 @@ const EFFECTS = {
         { name: "time", type: "number", label: "Duration (Emit)", default: 3 },
         { name: "direction", type: "select", label: "Direction", options: ["top-bottom", "bottom-top", "left-right", "right-left"], default: "top-bottom" }
     ],
+    "SciFiLevelUp": [
+        { name: "text", type: "text", label: "Text", default: "Level Up" },
+        { name: "background", type: "select", label: "Background", options: ["transparent", "solid"], default: "solid" },
+        { name: "backgroundColor", type: "color", label: "Background Color", default: "#000000" },
+        { name: "duration", type: "number", label: "Duration (sec, min 7)", default: 7 }
+    ],
     "ScreenBorder": [
         { name: "active", type: "checkbox", label: "Active", default: true },
         { name: "color", type: "color", label: "Color", default: "#ff0000" },
@@ -131,6 +137,7 @@ const EFFECT_DESCRIPTIONS = {
     Pulsate: "Makes the screen zoom in and out rhythmically, like a heartbeat.",
     Rain: "Spawns emoji or text particles raining across the screen.",
     RainImage: "Spawns an image raining across the screen.",
+    SciFiLevelUp: "A centered 3D holographic HUD announcing a level-up, with particles erupting from the text (Three.js).",
     ScreenBorder: "Toggles a pulsing colored border around the screen (e.g. a low health alert).",
     ScreenCover: "Displays a full-screen image or video.",
     ScreenShake: "Shakes the screen to simulate an impact.",

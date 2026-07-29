@@ -1,3 +1,8 @@
+# 1.0.7
+
+### Added
+- **Sci-Fi Level Up** (`CanvasFX.SciFiLevelUp(options)`): a centered 3D holographic HUD (Three.js) announcing a level-up. Particles sampled from the text's own glyph shape erupt outward once it fully forms. Supports custom text, a solid or transparent background (solid black by default), custom accent colors, and a configurable duration with a 7-second minimum. Available in `CanvasFX.Builder()` and `CanvasFX.Demo()`.
+
 # 1.0.6
 
 ### Added
