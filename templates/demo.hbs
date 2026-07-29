@@ -1,0 +1,13 @@
+<div class="cfx-demo-container">
+    <div class="cfx-grid">
+        {{#each macros}}
+        <button type="button" class="cfx-demo-btn" data-action="playMacro" data-macro-id="{{this.id}}">
+            <img src="{{this.img}}" width="24" height="24"/>
+            <span>{{this.name}}</span>
+        </button>
+        {{/each}}
+    </div>
+    <div class="cfx-footer">
+        <button type="button" class="cfx-clear-btn" data-action="clear"><i class="fas fa-trash"></i> Clear All FX</button>
+    </div>
+</div>

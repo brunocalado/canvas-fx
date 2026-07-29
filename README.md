@@ -1,6 +1,8 @@
 # Canvas FX
 
-**Canvas FX** is a lightweight visual effects module designed exclusively for **Foundry VTT v13**. It allows Game Masters to trigger cinematic screen effects—like rain, shakes, flashes, and filters—that appear **above the UI** and synchronize instantly for all connected players.
+**Canvas FX** is a lightweight visual effects module designed exclusively for **Foundry VTT v14**. It allows Game Masters to trigger cinematic screen effects—like rain, shakes, flashes, and filters—that appear **above the UI** and synchronize instantly for all connected players.
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-Donate-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/mestredigital) [![More Modules](https://img.shields.io/badge/Foundry%20VTT-More%20Modules-red?style=for-the-badge&logo=gamepad)](https://mestredigital.online/pages/projetos-en)
 
 ---
 
@@ -19,7 +21,7 @@ Before writing your macros, you can use these internal tools to preview effects 
 ### 2. Create Your Effects
 Once you have chosen an effect, refer to the **Wiki**. It contains the exact code snippets you need to copy into your macros to replicate the features listed below.
 
-👉 **[Read the Wiki & API Reference](https://github.com/brunocalado/canvas-fx/wiki)**
+👉 **[Read the Wiki & API Reference](docs/wiki.md)**
 
 ---
 

@@ -1,10 +1,16 @@
-/**
+/*!
  * Canvas FX
- * Author: Mestre Digital
- * Screen-space visual effects manager for Foundry VTT.
+ * Copyright (c) 2026 https://github.com/brunocalado
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  */
 
-const SOCKET_NAME = "module.canvas-fx";
+import { MODULE_ID } from "./constants.js";
+import { CanvasFXDemoApp } from "./apps/demo.js";
+import { CanvasFXBuilderApp } from "./apps/builder.js";
+
+const SOCKET_EVENT = `module.${MODULE_ID}`;
 
 console.log("CanvasFX | Initializing...");
 
@@ -69,10 +75,10 @@ class CanvasFXManager {
     /* --- UI: BUILDER & DEMO --- */
 
     /**
-     * Opens a dialog displaying available macros from the compendium.
+     * Opens a window displaying available macros from the compendium.
      */
     async Demo() {
-        const packName = "canvas-fx.canvasfx-demo-macros";
+        const packName = `${MODULE_ID}.canvasfx-demo-macros`;
         const pack = game.packs.get(packName);
 
         if (!pack) {
@@ -88,237 +94,14 @@ class CanvasFXManager {
 
         documents.sort((a, b) => a.name.localeCompare(b.name));
 
-        let content = `<div class="cfx-demo-container"><div class="cfx-grid">`;
-        documents.forEach(doc => {
-            const icon = doc.img || "icons/svg/d20.svg";
-            content += `
-            <button class="cfx-demo-btn" data-macro-id="${doc.id}">
-                <img src="${icon}" width="24" height="24"/>
-                <span>${doc.name}</span>
-            </button>`;
-        });
-        content += `</div><div class="cfx-footer"><button class="cfx-clear-btn"><i class="fas fa-trash"></i> Clear All FX</button></div></div>`;
-
-        new Dialog({
-            title: "Canvas FX - Demo",
-            content: content,
-            buttons: {},
-            render: (html) => {
-                html.find(".cfx-demo-btn").click(async (ev) => {
-                    const macroId = ev.currentTarget.dataset.macroId;
-                    const macro = documents.find(d => d.id === macroId);
-                    if (macro) macro.execute();
-                });
-                html.find(".cfx-clear-btn").click(() => this.Clear());
-            }
-        }, { width: 500, height: "auto", classes: ["canvas-fx-dialog"] }).render(true);
+        new CanvasFXDemoApp(this, documents).render(true);
     }
 
     /**
      * Opens the Effect Builder interface.
      */
-    async Builder() {
-        const templatePath = "modules/canvas-fx/templates/builder.html";
-        
-        // Configuration for available effects in the UI - SORTED ALPHABETICALLY
-        const effects = {
-            "BlackAndWhite": [
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
-            ],
-            "Blur": [
-                { name: "intensity", type: "number", label: "Px Radius", default: 1 },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
-            ],
-            "Colorfy": [
-                { name: "color", type: "color", label: "Color", default: "#ff0000" },
-                { name: "opacity", type: "number", label: "Opacity", default: 0.3 },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
-            ],
-            "Countdown": [
-                { name: "start", type: "number", label: "Start Number", default: 10 },
-                { name: "end", type: "number", label: "End Number", default: 0 },
-                { name: "color", type: "color", label: "Color", default: "#ffffff" },
-                { name: "audio", type: "text", label: "Tick Sound", default: "modules/canvas-fx/assets/audio/countdown.mp3" }
-            ],
-            "Curtain": [
-                { name: "duration", type: "number", label: "Open Time (ms)", default: 2000 },
-                { name: "image", type: "text", label: "Image URL", default: "modules/canvas-fx/assets/images/curtain.webp" }
-            ],
-            "Flash": [
-                { name: "color", type: "color", label: "Color", default: "#ffffff" },
-                { name: "duration", type: "number", label: "Duration (ms)", default: 1000 },
-                { name: "iterations", type: "number", label: "Iterations", default: 1 },
-                { name: "interval", type: "number", label: "Interval (ms)", default: 200 },
-                { name: "audio", type: "text", label: "Audio URL", default: "modules/canvas-fx/assets/audio/thunder.mp3" }
-            ],
-            "GlassShatter": [
-                { name: "count", type: "number", label: "Shards", default: 200 },
-                { name: "audio", type: "text", label: "Audio URL", default: "modules/canvas-fx/assets/audio/glass_shatter.mp3" }
-            ],
-            "Letterbox": [
-                { name: "active", type: "checkbox", label: "Active", default: true },
-                { name: "height", type: "text", label: "Height", default: "12vh" }
-            ],
-            "NightVision": [
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
-            ],
-            "Pulsate": [
-                { name: "intensity", type: "number", label: "Intensity (1-5)", default: 2 },
-                { name: "duration", type: "number", label: "Beat Time (ms)", default: 1000 },
-                { name: "iterations", type: "number", label: "Iterations", default: 5 }
-            ],
-            "Rain": [
-                { name: "content", type: "text", label: "Emoji/Text", default: "🔥" },
-                { name: "count", type: "number", label: "Count (Burst)", default: 80 },
-                { name: "speed", type: "number", label: "Speed", default: 300 },
-                { name: "scale", type: "number", label: "Scale", default: 1 },
-                { name: "time", type: "number", label: "Duration (Emit)", default: 3 },
-                { name: "direction", type: "select", label: "Direction", options: ["top-bottom", "bottom-top", "left-right", "right-left"], default: "top-bottom" }
-            ],
-            "RainImage": [
-                { name: "content", type: "text", label: "Image Path", default: "modules/canvas-fx/assets/images/cute-head.webp" },
-                { name: "count", type: "number", label: "Count (Burst)", default: 80 },
-                { name: "speed", type: "number", label: "Speed", default: 300 },
-                { name: "scale", type: "number", label: "Scale", default: 1 },
-                { name: "time", type: "number", label: "Duration (Emit)", default: 3 },
-                { name: "direction", type: "select", label: "Direction", options: ["top-bottom", "bottom-top", "left-right", "right-left"], default: "top-bottom" }
-            ],
-            "ScreenBorder": [
-                { name: "active", type: "checkbox", label: "Active", default: true },
-                { name: "color", type: "color", label: "Color", default: "#ff0000" },
-                { name: "thickness", type: "number", label: "Thickness", default: 20 }
-            ],
-            "ScreenCover": [
-                { name: "content", type: "text", label: "Image/Video URL", default: "modules/canvas-fx/assets/images/light-vs-dark.webp" },
-                { name: "audio", type: "text", label: "Audio URL", default: "modules/canvas-fx/assets/audio/light-vs-dark.mp3" },
-                { name: "opacity", type: "number", label: "Opacity", default: 1.0 },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
-            ],
-            "ScreenShake": [
-                { name: "intensity", type: "select", label: "Intensity", options: ["mild", "heavy", "extreme"], default: "heavy" },
-                { name: "duration", type: "number", label: "Duration (ms)", default: 500 }
-            ],
-            "Slideshow": [
-                { name: "content", type: "text", label: "Folder Path", default: "modules/canvas-fx/assets/images/slideshow" },
-                { name: "interval", type: "number", label: "Slide Time (sec)", default: 3 },
-                { name: "fade", type: "number", label: "Crossfade (ms)", default: 1000 }
-            ],
-            "Spin": [
-                { name: "angle", type: "number", label: "Angle", default: 360 },
-                { name: "duration", type: "number", label: "Duration (ms)", default: 2000 },
-                { name: "direction", type: "select", label: "Direction", options: ["clockwise", "counter-clockwise"], default: "clockwise" }
-            ],
-            "Text": [
-                { name: "content", type: "text", label: "Message", default: "VICTORY" },
-                { name: "color", type: "text", label: "Color", default: "gold" },
-                { name: "backgroundColor", type: "color", label: "Background", default: "#000000" },
-                { name: "fill", type: "select", label: "Fill Mode", options: ["box", "band", "full"], default: "full" },
-                { name: "fontFamily", type: "text", label: "Font Family", default: "Impact, sans-serif" },
-                { name: "animation", type: "select", label: "Animation", options: ["none", "pulse", "shake"], default: "none" },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
-            ],
-            "Vignette": [
-                { name: "intensity", type: "number", label: "Intensity", default: 0.8 },
-                { name: "color", type: "text", label: "Color", default: "black" },
-                { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
-            ]
-        };
-
-        const content = await renderTemplate(templatePath, { effects: effects });
-
-        const d = new Dialog({
-            title: "Canvas FX - Builder",
-            content: content,
-            buttons: {}, // Removed standard buttons
-            render: (html) => {
-                const effectSelect = html.find("#cfx-builder-select");
-                
-                // Show initial effect fields (BlackAndWhite is now first alphabetically)
-                const firstEffect = Object.keys(effects)[0];
-                html.find(`.cfx-effect-group`).hide();
-                html.find(`.cfx-effect-group[data-effect="${firstEffect}"]`).show();
-
-                // Handle effect selection change
-                effectSelect.change((ev) => {
-                    const selected = ev.target.value;
-                    html.find(".cfx-effect-group").hide();
-                    html.find(`.cfx-effect-group[data-effect="${selected}"]`).show();
-                    d.setPosition({ height: "auto" }); 
-                });
-                
-                // Helper to get parameters
-                const getParams = (effect) => {
-                    const inputs = html.find(`.cfx-effect-group[data-effect="${effect}"] input, .cfx-effect-group[data-effect="${effect}"] select`);
-                    const options = {};
-                    let mainContent = null;
-
-                    inputs.each((_, input) => {
-                        const name = input.name;
-                        let value = input.type === "checkbox" ? input.checked : input.value;
-                        if (input.type === "number" || input.dataset.type === "number") {
-                            value = parseFloat(value);
-                        }
-
-                        if (name === "content") mainContent = value;
-                        else options[name] = value;
-                    });
-                    return { mainContent, options };
-                };
-
-                // Play Button
-                html.find("#cfx-builder-play").click(() => {
-                    const effect = effectSelect.val();
-                    const { mainContent, options } = getParams(effect);
-
-                    // Trigger the selected effect
-                    if (effect === "Rain") this.Rain(mainContent, options);
-                    else if (effect === "RainImage" || effect === "ScreenCover" || effect === "Text" || effect === "Slideshow") this[effect](mainContent, options);
-                    else if (effect === "Countdown") this.Countdown(options);
-                    else if (this[effect]) this[effect](options);
-                });
-                
-                // Create Macro Button
-                html.find("#cfx-builder-create").click(async () => {
-                    const effect = effectSelect.val();
-                    const { mainContent, options } = getParams(effect);
-                    
-                    // Construct Command String
-                    let command = `// Canvas FX - ${effect}\n`;
-                    const optsStr = JSON.stringify(options, null, 2);
-                    
-                    if (["Rain", "RainImage", "Text", "ScreenCover", "Slideshow"].includes(effect)) {
-                         command += `CanvasFX.${effect}("${mainContent}", ${optsStr});`;
-                    } else {
-                         command += `CanvasFX.${effect}(${optsStr});`;
-                    }
-
-                    // Folder Logic
-                    const folderName = "CanvasFX Builder";
-                    let folder = game.folders.find(f => f.name === folderName && f.type === "Macro");
-                    if (!folder) {
-                        folder = await Folder.create({ name: folderName, type: "Macro" });
-                    }
-
-                    // Create Macro
-                    await Macro.create({
-                        name: `CFX: ${effect}`,
-                        type: "script",
-                        command: command,
-                        folder: folder.id,
-                        img: "icons/svg/d20.svg"
-                    });
-                    
-                    ui.notifications.info(`CanvasFX: Macro "CFX: ${effect}" created!`);
-                });
-                
-                // Clear Button
-                html.find("#cfx-builder-clear").click(() => {
-                    this.Clear();
-                });
-            }
-        }, { width: 400, height: "auto", classes: ["canvas-fx-builder-window"] });
-        
-        d.render(true);
+    Builder() {
+        new CanvasFXBuilderApp(this).render(true);
     }
 
     /* --- PUBLIC SHORTCUTS --- */
@@ -359,7 +142,9 @@ class CanvasFXManager {
         // Resolve images on the initiator client (usually GM)
         // Fixed: Use "data" source for User Data (where modules typically live)
         try {
-            const result = await FilePicker.browse("data", path);
+            const FilePickerClass = foundry.applications.apps.FilePicker.implementation
+                ?? foundry.applications.apps.FilePicker;
+            const result = await FilePickerClass.browse("data", path);
             const images = result.files.filter(f => f.match(/.(png|jpg|jpeg|webp|gif|webm)$/i));
             
             if (images.length === 0) {
@@ -392,7 +177,7 @@ class CanvasFXManager {
      */
     emit(action, payload) {
         if (game.socket) {
-            game.socket.emit(SOCKET_NAME, { action, payload: { ...payload, sender: game.user.name } });
+            game.socket.emit(SOCKET_EVENT, { action, payload: { ...payload, sender: game.user.name } });
         }
         this.executeLocal(action, payload);
     }
@@ -442,7 +227,7 @@ class CanvasFXManager {
     }
 
     playSound(src, options = {}) {
-        if (typeof AudioHelper !== "undefined") AudioHelper.play({ src: src, volume: options.volume || 0.8, autoplay: true }, false);
+        foundry.audio.AudioHelper.play({ src: src, volume: options.volume || 0.8, autoplay: true }, false);
     }
 
     colorToRGB(color) {
@@ -698,7 +483,7 @@ class CanvasFXManager {
     handleCurtain(data) {
         if (!this.curtainLayer) return;
         this.curtainLayer.innerHTML = ""; this.curtainLayer.style.display = "block";
-        const image = data.image || "modules/canvas-fx/assets/images/curtain.webp"; 
+        const image = data.image || `modules/${MODULE_ID}/assets/images/curtain.webp`;
         const duration = (data.duration || 2000); 
         const left = document.createElement("div"); left.className = "cfx-curtain-panel left";
         const right = document.createElement("div"); right.className = "cfx-curtain-panel right";
@@ -956,4 +741,4 @@ class CanvasFXManager {
 
 const canvasFX = new CanvasFXManager();
 Hooks.once('init', () => { window.CanvasFX = canvasFX; console.log("CanvasFX | Initialized"); });
-Hooks.once('ready', () => { canvasFX.initialize(); if (game.socket) game.socket.on(SOCKET_NAME, (p) => canvasFX.executeLocal(p.action, p.payload)); });
+Hooks.once('ready', () => { canvasFX.initialize(); if (game.socket) game.socket.on(SOCKET_EVENT, (p) => canvasFX.executeLocal(p.action, p.payload)); });

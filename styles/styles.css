@@ -1,3 +1,11 @@
+/*!
+ * Canvas FX
+ * Copyright (c) 2026 https://github.com/brunocalado
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ */
+
 /* --- LAYERS --- */
 #canvas-fx-layer {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -153,17 +161,18 @@
     background: rgba(0,0,0,0.1);
 }
 
-/* --- DEMO & BUILDER DIALOGS --- */
-.canvas-fx-dialog .window-content, .canvas-fx-builder-window .window-content { 
-    background: #1a1a1a; 
-    color: #eee; 
-    padding: 10px; 
+/* --- DEMO & BUILDER WINDOWS --- */
+.canvas-fx.canvas-fx-demo .window-content, .canvas-fx.canvas-fx-builder .window-content {
+    background: #1a1a1a;
+    color: #eee;
+    padding: 10px;
 }
 .cfx-demo-container .notes { font-style: italic; margin-bottom: 10px; color: #bbb; text-align: center; }
 .cfx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 15px; max-height: 400px; overflow-y: auto; }
-.cfx-demo-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #333; border: 1px solid #444; border-radius: 6px; padding: 10px; cursor: pointer; transition: all 0.2s; color: #fff; font-size: 13px; }
+.cfx-demo-btn { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; background: #333; border: 1px solid #444; border-radius: 6px; padding: 10px; cursor: pointer; transition: all 0.2s; color: #fff; font-size: 13px; text-align: left; overflow: hidden; }
 .cfx-demo-btn:hover { background: #555; border-color: #777; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-.cfx-demo-btn img { margin-bottom: 5px; border: none; }
+.cfx-demo-btn img { width: 24px; height: 24px; object-fit: contain; flex: 0 0 24px; border: none; }
+.cfx-demo-btn span { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
 .cfx-footer { border-top: 1px solid #444; padding-top: 10px; text-align: right; }
 .cfx-clear-btn { background: #8b2d2d; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
 .cfx-clear-btn:hover { background: #a93e3e; }
@@ -171,7 +180,7 @@
 /* Builder Specific - Legibility Fix (White BG, Black Text) */
 .cfx-builder-row { margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
 .cfx-builder-row label { flex: 1; font-weight: bold; font-size: 13px; color: #333; }
-.canvas-fx-builder-window .window-content { background: #f0f0f0; color: #222; } /* Override default dark bg */
+.canvas-fx.canvas-fx-builder .window-content { background: #f0f0f0; color: #222; } /* Override default dark bg */
 
 .cfx-builder-row input, .cfx-builder-row select { 
     flex: 1.5; 
