@@ -1,7 +1,7 @@
 {
   "id": "canvas-fx",
   "title": "Canvas FX",
-  "version": "1.0.4",
+  "version": "1.0.5",
   
   "compatibility": {
     "minimum": "14",
@@ -24,20 +24,7 @@
   "styles": [
     "styles/styles.css"
   ],
-  "packs": [
-    {
-      "label": "CanvasFX: Demo Macros",
-      "type": "Macro",
-      "name": "canvasfx-demo-macros",
-      "path": "packs/canvasfx-demo-macros",
-      "ownership": {
-        "PLAYER": "NONE",
-        "ASSISTANT": "OWNER"
-      },
-      "flags": {}
-    }   
-  ],    
-  
+
   "socket": true,
   
   "url": "https://github.com/brunocalado/canvas-fx",

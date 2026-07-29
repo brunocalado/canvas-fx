@@ -11,22 +11,20 @@ import { MODULE_ID, TEMPLATES } from "../constants.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
- * Displays the macros bundled in the demo compendium so the GM can preview
- * every effect without writing a single script macro first.
+ * Displays the bundled demo macros so the GM can preview every effect
+ * without writing a single script macro first.
  */
 export class CanvasFXDemoApp extends HandlebarsApplicationMixin(ApplicationV2) {
     #macros;
-    #macrosById;
 
     /**
      * @param {CanvasFXManager} manager
-     * @param {Macro[]} macros - Already-fetched and sorted demo macros.
+     * @param {{name: string, img: string, run: Function}[]} macros - Already-sorted demo entries.
      */
     constructor(manager, macros, options = {}) {
         super(options);
         this.manager = manager;
         this.#macros = macros;
-        this.#macrosById = new Map(macros.map(doc => [doc.id, doc]));
     }
 
     static DEFAULT_OPTIONS = {
@@ -46,17 +44,17 @@ export class CanvasFXDemoApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     async _prepareContext(options) {
         return {
-            macros: this.#macros.map(doc => ({
-                id: doc.id,
-                name: doc.name,
-                img: doc.img || "icons/svg/d20.svg"
+            macros: this.#macros.map((entry, index) => ({
+                index,
+                name: entry.name,
+                img: entry.img || "icons/svg/d20.svg"
             }))
         };
     }
 
     playMacro(event, target) {
-        const macro = this.#macrosById.get(target.dataset.macroId);
-        if (macro) macro.execute();
+        const entry = this.#macros[Number(target.dataset.macroIndex)];
+        entry?.run();
     }
 
     clearEffects() {

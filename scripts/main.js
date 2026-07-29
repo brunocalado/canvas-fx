@@ -9,6 +9,7 @@
 import { MODULE_ID } from "./constants.js";
 import { CanvasFXDemoApp } from "./apps/demo.js";
 import { CanvasFXBuilderApp } from "./apps/builder.js";
+import { DEMO_MACROS } from "./demo-macros.js";
 
 const SOCKET_EVENT = `module.${MODULE_ID}`;
 
@@ -75,26 +76,11 @@ class CanvasFXManager {
     /* --- UI: BUILDER & DEMO --- */
 
     /**
-     * Opens a window displaying available macros from the compendium.
+     * Opens a window displaying the bundled demo macros.
      */
-    async Demo() {
-        const packName = `${MODULE_ID}.canvasfx-demo-macros`;
-        const pack = game.packs.get(packName);
-
-        if (!pack) {
-            ui.notifications.warn(`CanvasFX: Compendium '${packName}' not found.`);
-            return;
-        }
-
-        const documents = await pack.getDocuments();
-        if (documents.length === 0) {
-            ui.notifications.info("CanvasFX: No macros found in the demo pack.");
-            return;
-        }
-
-        documents.sort((a, b) => a.name.localeCompare(b.name));
-
-        new CanvasFXDemoApp(this, documents).render(true);
+    Demo() {
+        const macros = [...DEMO_MACROS].sort((a, b) => a.name.localeCompare(b.name));
+        new CanvasFXDemoApp(this, macros).render(true);
     }
 
     /**

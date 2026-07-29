@@ -1,3 +1,8 @@
+# 1.0.5
+
+### Changed
+- The demo macros shown in `CanvasFX.Demo()` are no longer stored in a compendium pack. They now live in `scripts/demo-macros.js` as plain data, so the module no longer ships a `packs/` LevelDB folder.
+
 # 1.0.4
 
 ### Fixed
