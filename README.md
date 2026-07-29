@@ -29,17 +29,6 @@ Once you have chosen an effect, refer to the **Wiki**. It contains the exact cod
 
 ---
 
-## 📺 Video Example
-
-<video src="https://github.com/user-attachments/assets/e81c608f-982a-4c8d-8093-0d4c9576c966" 
-       controls 
-       width="720"
-       autoplay 
-       loop 
-       muted></video>
-
----
-
 ## ✨ Features
 
 By using the simple commands found in the Wiki, you can create:
