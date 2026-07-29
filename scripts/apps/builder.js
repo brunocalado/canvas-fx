@@ -117,6 +117,29 @@ const EFFECTS = {
 // Effects whose first parameter is the free-form "content" field rather than an options-only call.
 const CONTENT_FIRST_EFFECTS = ["Rain", "RainImage", "Text", "ScreenCover", "Slideshow"];
 
+// One-line explanation per effect, shown in the Builder's help tooltip.
+const EFFECT_DESCRIPTIONS = {
+    BlackAndWhite: "Desaturates the screen to black and white.",
+    Blur: "Blurs the entire screen.",
+    Colorfy: "Applies a colored multiply overlay to the screen.",
+    Countdown: "Displays a large number counting down (or up) from a start value to an end value.",
+    Curtain: "Closes and opens theater curtains over the screen.",
+    Flash: "A sudden bright flash of light, optionally repeated.",
+    GlassShatter: "Simulates the screen shattering into glass shards. Includes a screen shake.",
+    Letterbox: "Adds cinematic black bars to the top and bottom of the screen.",
+    NightVision: "Applies a green night-vision filter to the screen.",
+    Pulsate: "Makes the screen zoom in and out rhythmically, like a heartbeat.",
+    Rain: "Spawns emoji or text particles raining across the screen.",
+    RainImage: "Spawns an image raining across the screen.",
+    ScreenBorder: "Toggles a pulsing colored border around the screen (e.g. a low health alert).",
+    ScreenCover: "Displays a full-screen image or video.",
+    ScreenShake: "Shakes the screen to simulate an impact.",
+    Slideshow: "Displays a sequence of images from a folder with crossfade transitions.",
+    Spin: "Rotates the entire game view.",
+    Text: "Displays a massive text message overlay.",
+    Vignette: "Darkens the edges of the screen."
+};
+
 /**
  * Lets the GM tweak an effect's parameters, preview it immediately, and
  * turn the current settings into a ready-to-use script macro.
@@ -131,10 +154,11 @@ export class CanvasFXBuilderApp extends HandlebarsApplicationMixin(ApplicationV2
         id: "canvas-fx-builder",
         classes: [MODULE_ID, "canvas-fx-builder"],
         window: { title: "Canvas FX - Builder" },
-        position: { width: 400, height: "auto" },
+        position: { width: 480, height: "auto" },
         actions: {
             play: this.prototype.playEffect,
             createMacro: this.prototype.createMacro,
+            reset: this.prototype.resetEffect,
             clear: this.prototype.clearEffects
         }
     };
@@ -149,10 +173,12 @@ export class CanvasFXBuilderApp extends HandlebarsApplicationMixin(ApplicationV2
 
     _onRender(context, options) {
         const select = this.element.querySelector("#cfx-builder-select");
+        const helpIcon = this.element.querySelector("#cfx-builder-help");
         const groups = this.element.querySelectorAll(".cfx-effect-group");
 
         const showGroup = (effectName) => {
             for (const group of groups) group.style.display = group.dataset.effect === effectName ? "" : "none";
+            helpIcon.dataset.tooltip = EFFECT_DESCRIPTIONS[effectName] ?? "";
         };
 
         showGroup(select.value);
@@ -161,6 +187,8 @@ export class CanvasFXBuilderApp extends HandlebarsApplicationMixin(ApplicationV2
             showGroup(event.target.value);
             this.setPosition({ height: "auto" });
         });
+
+        helpIcon.addEventListener("click", () => game.tooltip.activate(helpIcon, { locked: true }));
     }
 
     /**
@@ -219,6 +247,21 @@ export class CanvasFXBuilderApp extends HandlebarsApplicationMixin(ApplicationV2
         });
 
         ui.notifications.info(`CanvasFX: Macro "CFX: ${effect}" created!`);
+    }
+
+    /**
+     * Restores the currently selected effect's fields to their default values.
+     */
+    resetEffect() {
+        const effect = this.selectedEffect;
+        const group = this.element.querySelector(`.cfx-effect-group[data-effect="${effect}"]`);
+
+        for (const field of EFFECTS[effect]) {
+            const input = group.querySelector(`[name="${field.name}"]`);
+            if (!input) continue;
+            if (field.type === "checkbox") input.checked = !!field.default;
+            else input.value = field.default;
+        }
     }
 
     clearEffects() {
