@@ -14,7 +14,9 @@
             {{#each fields}}
             <div class="cfx-builder-row">
                 <label>{{this.label}}</label>
-                {{#if (eq this.type "select")}}
+                {{#if this.picker}}
+                    <file-picker type="{{this.picker}}" name="{{this.name}}" value="{{this.default}}"></file-picker>
+                {{else if (eq this.type "select")}}
                     <select name="{{this.name}}" data-type="{{this.type}}">
                         {{#each this.options}}
                         <option value="{{this}}" {{#if (eq this ../default)}}selected{{/if}}>{{this}}</option>

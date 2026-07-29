@@ -1,3 +1,17 @@
+# 1.0.8
+
+### Added
+- **Sci-Fi Level Up**: now plays a sound by default (`assets/audio/victory.mp3`). Pass your own path in `audio`, or an empty string to run the effect silently. It is the only effect that ships a built-in default sound; the others stay silent unless given one.
+- Builder (`CanvasFX.Builder()`): fields that take a file path now use Foundry's file picker — a text box plus a browse button — instead of a bare text input. Covers every audio field (Countdown, Flash, GlassShatter, ScreenCover, Sci-Fi Level Up) as well as the image, image/video, and folder fields (RainImage, Curtain, ScreenCover, Slideshow).
+
+### Changed
+- **Sci-Fi Level Up**: rebuilt visually. A burst of warp streaks now draws a chamfered HUD frame out of nothing; the outline thickens into beveled glass, instrument readouts and circuit traces populate it, and a flare at the center punches the text in. This replaces the previous concentric rings, glass panels, and gyroscopic reactor core.
+- **Sci-Fi Level Up**: long messages are measured once laid out and scaled down to fit inside the frame, instead of overflowing past its inner edge.
+- The Builder's styles moved from `styles/styles.css` into their own `styles/builder.css`, keeping one stylesheet per application.
+
+### Fixed
+- **Sci-Fi Level Up**: the 3D canvas was given a class (`cfx-hud-canvas`) that no CSS rule matched, so it was never absolutely positioned and only happened to land in the right place through normal document flow.
+
 # 1.0.7
 
 ### Added

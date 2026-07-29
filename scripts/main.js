@@ -6,7 +6,7 @@
  * it under the terms of the GNU General Public License version 3.
  */
 
-import { MODULE_ID } from "./constants.js";
+import { MODULE_ID, DEFAULT_LEVELUP_AUDIO } from "./constants.js";
 import { CanvasFXDemoApp } from "./apps/demo.js";
 import { CanvasFXBuilderApp } from "./apps/builder.js";
 import { DEMO_MACROS } from "./demo-macros.js";
@@ -131,7 +131,12 @@ class CanvasFXManager {
     }
 
     SciFiLevelUp(options = {}) {
-        this.emit("scifi_levelup", options);
+        // Only fill in the sting when `audio` was left out entirely, so passing
+        // `audio: null` (or "") stays a valid way to run the effect silently.
+        // Resolved here rather than in the handler so every client receives the
+        // same path in the broadcast payload.
+        const audio = options.audio === undefined ? DEFAULT_LEVELUP_AUDIO : options.audio;
+        this.emit("scifi_levelup", { ...options, audio });
     }
 
     async Slideshow(path, options = {}) {

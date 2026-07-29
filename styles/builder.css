@@ -1,0 +1,150 @@
+/*!
+ * Canvas FX
+ * Copyright (c) 2026 https://github.com/brunocalado
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ */
+
+/* Styles for CanvasFXBuilderApp. The Builder deliberately uses its own dark
+   palette rather than the ambient sheet theme, so the values live as custom
+   properties on the scoped root. */
+.canvas-fx {
+    &.canvas-fx-builder {
+        --cfx-builder-bg: #1c1c20;
+        --cfx-builder-surface: #29292f;
+        --cfx-builder-surface-hover: #34343c;
+        --cfx-builder-border: #45454e;
+        --cfx-builder-text: #f2f2f4;
+        --cfx-builder-text-muted: #a8a8b3;
+        --cfx-builder-accent: #3aa152;
+
+        & .window-content {
+            background: var(--cfx-builder-bg);
+            color: var(--cfx-builder-text);
+            padding: 10px;
+        }
+    }
+
+    & .cfx-builder-header {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    & #cfx-builder-select {
+        flex: 1;
+        height: 32px;
+        box-sizing: border-box;
+        background: var(--cfx-builder-surface);
+        color: var(--cfx-builder-text);
+        border: 1px solid var(--cfx-builder-border);
+        border-radius: 4px;
+        padding: 0 8px;
+        font-size: 14px;
+
+        & option { background: var(--cfx-builder-surface); color: var(--cfx-builder-text); }
+    }
+
+    & .cfx-help-icon {
+        flex: 0 0 32px;
+        width: 32px;
+        height: 32px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--cfx-builder-surface);
+        color: var(--cfx-builder-text-muted);
+        border: 1px solid var(--cfx-builder-border);
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: help;
+        padding: 0;
+
+        &:hover { background: var(--cfx-builder-surface-hover); color: var(--cfx-builder-text); }
+    }
+
+    & .cfx-builder-row {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+
+        & label { flex: 1; font-weight: bold; font-size: 13px; color: var(--cfx-builder-text-muted); }
+
+        & input, & select {
+            flex: 1.5;
+            min-width: 0;
+            background: var(--cfx-builder-surface);
+            border: 1px solid var(--cfx-builder-border);
+            color: var(--cfx-builder-text);
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+
+        & input:focus, & select:focus {
+            outline: none;
+            border-color: var(--cfx-builder-accent);
+        }
+
+        & select option { background: var(--cfx-builder-surface); color: var(--cfx-builder-text); }
+
+        /* <file-picker> supplies its own text input plus a browse button. Only
+           the host needs sizing here; the inner rules are a no-op if core keeps
+           those children in a shadow root. */
+        & file-picker {
+            flex: 1.5;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            & input { flex: 1 1 auto; }
+            & button {
+                flex: 0 0 auto;
+                width: 28px;
+                background: var(--cfx-builder-surface);
+                color: var(--cfx-builder-text-muted);
+                border: 1px solid var(--cfx-builder-border);
+                border-radius: 4px;
+                cursor: pointer;
+            }
+        }
+    }
+
+    & .cfx-builder-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 15px;
+        border-top: 1px solid var(--cfx-builder-border);
+        padding-top: 10px;
+
+        & button {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+            font-size: 12px;
+            background: var(--cfx-builder-surface);
+            color: var(--cfx-builder-text);
+            border: 1px solid var(--cfx-builder-border);
+            padding: 6px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        & button.play { background: #2f8042; border-color: #2f8042; }
+        & button.play:hover { background: #3aa152; }
+        & button.create { background: #2d588b; border-color: #2d588b; }
+        & button.create:hover { background: #3e72b1; }
+        & button.reset { background: #8a6d1f; border-color: #8a6d1f; }
+        & button.reset:hover { background: #ab892a; }
+        & button.clear { background: #8b2d2d; border-color: #8b2d2d; }
+        & button.clear:hover { background: #a93e3e; }
+    }
+}

@@ -6,11 +6,17 @@
  * it under the terms of the GNU General Public License version 3.
  */
 
-import { MODULE_ID, TEMPLATES } from "../constants.js";
+import { MODULE_ID, TEMPLATES, DEFAULT_LEVELUP_AUDIO } from "../constants.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Effects available in the Builder UI, sorted alphabetically.
+//
+// A field with `picker` renders as a core `<file-picker>` — a text box plus a
+// browse button — instead of a bare text input. The value is the FilePicker
+// file type ("audio", "image", "imagevideo", "folder"). Letting core own the
+// widget means the configured FilePicker implementation is respected without
+// this app constructing one itself.
 const EFFECTS = {
     "BlackAndWhite": [
         { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
@@ -28,22 +34,22 @@ const EFFECTS = {
         { name: "start", type: "number", label: "Start Number", default: 10 },
         { name: "end", type: "number", label: "End Number", default: 0 },
         { name: "color", type: "color", label: "Color", default: "#ffffff" },
-        { name: "audio", type: "text", label: "Tick Sound", default: `modules/${MODULE_ID}/assets/audio/countdown.mp3` }
+        { name: "audio", type: "text", label: "Tick Sound", picker: "audio", default: `modules/${MODULE_ID}/assets/audio/countdown.mp3` }
     ],
     "Curtain": [
         { name: "duration", type: "number", label: "Open Time (ms)", default: 2000 },
-        { name: "image", type: "text", label: "Image URL", default: `modules/${MODULE_ID}/assets/images/curtain.webp` }
+        { name: "image", type: "text", label: "Image URL", picker: "image", default: `modules/${MODULE_ID}/assets/images/curtain.webp` }
     ],
     "Flash": [
         { name: "color", type: "color", label: "Color", default: "#ffffff" },
         { name: "duration", type: "number", label: "Duration (ms)", default: 1000 },
         { name: "iterations", type: "number", label: "Iterations", default: 1 },
         { name: "interval", type: "number", label: "Interval (ms)", default: 200 },
-        { name: "audio", type: "text", label: "Audio URL", default: `modules/${MODULE_ID}/assets/audio/thunder.mp3` }
+        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: `modules/${MODULE_ID}/assets/audio/thunder.mp3` }
     ],
     "GlassShatter": [
         { name: "count", type: "number", label: "Shards", default: 200 },
-        { name: "audio", type: "text", label: "Audio URL", default: `modules/${MODULE_ID}/assets/audio/glass_shatter.mp3` }
+        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: `modules/${MODULE_ID}/assets/audio/glass_shatter.mp3` }
     ],
     "Letterbox": [
         { name: "active", type: "checkbox", label: "Active", default: true },
@@ -66,7 +72,7 @@ const EFFECTS = {
         { name: "direction", type: "select", label: "Direction", options: ["top-bottom", "bottom-top", "left-right", "right-left"], default: "top-bottom" }
     ],
     "RainImage": [
-        { name: "content", type: "text", label: "Image Path", default: `modules/${MODULE_ID}/assets/images/cute-head.webp` },
+        { name: "content", type: "text", label: "Image Path", picker: "image", default: `modules/${MODULE_ID}/assets/images/cute-head.webp` },
         { name: "count", type: "number", label: "Count (Burst)", default: 80 },
         { name: "speed", type: "number", label: "Speed", default: 300 },
         { name: "scale", type: "number", label: "Scale", default: 1 },
@@ -77,7 +83,8 @@ const EFFECTS = {
         { name: "text", type: "text", label: "Text", default: "Level Up" },
         { name: "background", type: "select", label: "Background", options: ["transparent", "solid"], default: "solid" },
         { name: "backgroundColor", type: "color", label: "Background Color", default: "#000000" },
-        { name: "duration", type: "number", label: "Duration (sec, min 7)", default: 7 }
+        { name: "duration", type: "number", label: "Duration (sec, min 7)", default: 7 },
+        { name: "audio", type: "text", label: "Audio URL (blank = silent)", picker: "audio", default: DEFAULT_LEVELUP_AUDIO }
     ],
     "ScreenBorder": [
         { name: "active", type: "checkbox", label: "Active", default: true },
@@ -85,8 +92,8 @@ const EFFECTS = {
         { name: "thickness", type: "number", label: "Thickness", default: 20 }
     ],
     "ScreenCover": [
-        { name: "content", type: "text", label: "Image/Video URL", default: `modules/${MODULE_ID}/assets/images/light-vs-dark.webp` },
-        { name: "audio", type: "text", label: "Audio URL", default: `modules/${MODULE_ID}/assets/audio/light-vs-dark.mp3` },
+        { name: "content", type: "text", label: "Image/Video URL", picker: "imagevideo", default: `modules/${MODULE_ID}/assets/images/light-vs-dark.webp` },
+        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: `modules/${MODULE_ID}/assets/audio/light-vs-dark.mp3` },
         { name: "opacity", type: "number", label: "Opacity", default: 1.0 },
         { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
     ],
@@ -95,7 +102,7 @@ const EFFECTS = {
         { name: "duration", type: "number", label: "Duration (ms)", default: 500 }
     ],
     "Slideshow": [
-        { name: "content", type: "text", label: "Folder Path", default: `modules/${MODULE_ID}/assets/images/slideshow` },
+        { name: "content", type: "text", label: "Folder Path", picker: "folder", default: `modules/${MODULE_ID}/assets/images/slideshow` },
         { name: "interval", type: "number", label: "Slide Time (sec)", default: 3 },
         { name: "fade", type: "number", label: "Crossfade (ms)", default: 1000 }
     ],
@@ -200,20 +207,28 @@ export class CanvasFXBuilderApp extends HandlebarsApplicationMixin(ApplicationV2
 
     /**
      * Reads the current form values for one effect group.
+     *
+     * `<file-picker>` fields are collected alongside the plain inputs. The text
+     * box each one renders internally is excluded, so a single field can never
+     * be read twice.
      */
     getParams(effectName) {
-        const inputs = this.element.querySelectorAll(
-            `.cfx-effect-group[data-effect="${effectName}"] input, .cfx-effect-group[data-effect="${effectName}"] select`
+        const scope = `.cfx-effect-group[data-effect="${effectName}"]`;
+        const fields = this.element.querySelectorAll(
+            `${scope} input:not(file-picker input), ${scope} select, ${scope} file-picker`
         );
         const params = {};
         let mainContent = null;
 
-        for (const input of inputs) {
-            let value = input.type === "checkbox" ? input.checked : input.value;
-            if (input.type === "number" || input.dataset.type === "number") value = parseFloat(value);
+        for (const field of fields) {
+            // A <file-picker> reports its *file* type ("audio", "image", ...) on
+            // `type`, so it never matches the input-type checks below.
+            const name = field.name || field.getAttribute("name");
+            let value = field.type === "checkbox" ? field.checked : field.value;
+            if (field.type === "number" || field.dataset.type === "number") value = parseFloat(value);
 
-            if (input.name === "content") mainContent = value;
-            else params[input.name] = value;
+            if (name === "content") mainContent = value;
+            else params[name] = value;
         }
 
         return { mainContent, params };

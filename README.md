@@ -18,6 +18,10 @@ Before writing your macros, you can use these internal tools to preview effects 
 * **`CanvasFX.Builder()`** Opens a visual interface where you can tweak settings, play effects immediately, and **automatically create macros** with one click.
 * **`CanvasFX.Demo()`** Opens a gallery of pre-configured examples to show you what is possible.
 
+| Builder — tweak settings, play, and generate a macro | Demo — gallery of ready-made examples |
+| :---: | :---: |
+| <img src="docs/macro-builder-quick-preview.webp" alt="Canvas FX Builder window showing GlassShatter selected, with Shards and Audio URL fields and Play Effect, Create Macro, Reset and Clear Screen buttons" width="400"> | <img src="docs/quick-demo.webp" alt="Canvas FX Demo gallery listing effects such as Blur, Flash, Letterbox, Sci-Fi Level Up and Vignette, with a Clear All FX button" width="400"> |
+
 ### 2. Create Your Effects
 Once you have chosen an effect, refer to the **Wiki**. It contains the exact code snippets you need to copy into your macros to replicate the features listed below.
 
@@ -54,14 +58,19 @@ By using the simple commands found in the Wiki, you can create:
 ## 📥 Manual Installation
 
 1.  Copy this manifest link:
-    `https://raw.githubusercontent.com/brunocalado/canvas-fx/main/module.json`
+
+```
+https://raw.githubusercontent.com/brunocalado/canvas-fx/main/module.json
+```
+    
 2.  In Foundry VTT, go to **Add-on Modules** -> **Install Module**.
 3.  Paste the link into the **Manifest URL** field and click Install.
 
 ---
 
 ## License
-Code licensed under [MIT](LICENSE).
+
+Code licensed under [LICENSE](LICENSE).
 
 *Images and audio assets are public domain (CC0).*
 

@@ -432,10 +432,18 @@ Displays a centered 3D holographic HUD (Three.js) announcing a level-up. A burst
 - `duration` (Number): Total seconds. `0` = auto (~9s). Always floored at a minimum of `7` seconds regardless of what's passed. Default: `0`.
 - `accent` (String): Primary hologram color. Default: `"#00e5ff"`.
 - `accent2` (String): Secondary hologram color. Default: `"#2979ff"`.
+- `audio` (String): Sound played with the effect. Unlike the other effects, this one ships a built-in default: `modules/canvas-fx/assets/audio/victory.mp3` (~6s, so it finishes shortly before the visuals do). Pass an empty string or `null` to run it silently.
+- `volume` (Number): Audio volume (0.0 to 1.0). Default: `0.8`.
 
 ```javascript
-// Simple
+// Simple (plays the built-in victory sting)
 CanvasFX.SciFiLevelUp();
+```
+
+```javascript
+// Silent, or with your own sound
+CanvasFX.SciFiLevelUp({ audio: "" });
+CanvasFX.SciFiLevelUp({ audio: "sounds/fanfare.ogg", volume: 0.5 });
 ```
 
 ```javascript
