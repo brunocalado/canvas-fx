@@ -16,4 +16,4 @@ export const TEMPLATES = {
 // Sci-Fi Level Up plays this unless the caller passes its own `audio`. Shared
 // rather than inlined because it is both the runtime default and the Builder's
 // prefill, and the two have to stay in step.
-export const DEFAULT_LEVELUP_AUDIO = `modules/${MODULE_ID}/assets/audio/victory.mp3`;
+export const DEFAULT_LEVELUP_AUDIO = "";

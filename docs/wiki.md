@@ -71,12 +71,12 @@ Spawns images raining from the screen.
 
 ```javascript
 // Simple
-CanvasFX.RainImage("modules/canvas-fx/assets/images/cute-head.webp");
+CanvasFX.RainImage("path/to/your-image.webp");
 ```
 
 ```javascript
 // Complete
-CanvasFX.RainImage("modules/canvas-fx/assets/images/cute-head.webp", { 
+CanvasFX.RainImage("path/to/your-image.webp", { 
     scale: 0.5, 
     count: 50, 
     direction: "bottom-top" 
@@ -119,7 +119,7 @@ CanvasFX.GlassShatter();
 // Complete
 CanvasFX.GlassShatter({ 
     count: 200, 
-    audio: "modules/canvas-fx/assets/audio/glass_shatter.mp3" 
+    audio: "path/to/your-audio.mp3" 
 });
 ```
 
@@ -166,7 +166,7 @@ CanvasFX.Flash({
     iterations: 3, 
     interval: 150, 
     color: "#aaaaFF",
-    audio: "modules/canvas-fx/assets/audio/thunder.mp3" 
+    audio: "path/to/your-audio.mp3" 
 });
 ```
 
@@ -215,12 +215,12 @@ Displays a full-screen image or video.
 
 ```javascript
 // Simple
-CanvasFX.ScreenCover("modules/canvas-fx/assets/images/light-vs-dark.webp");
+CanvasFX.ScreenCover("path/to/your-image.webp");
 ```
 
 ```javascript
 // Complete
-CanvasFX.ScreenCover("modules/canvas-fx/assets/cinematic.webm", { 
+CanvasFX.ScreenCover("path/to/your-video.webm", { 
     duration: 15, 
     opacity: 0.8 
 });
@@ -252,7 +252,7 @@ Closes and opens theater curtains.
 
 **Options:**
 - `duration` (Number): Time in milliseconds for the curtain to slide open/close. Default: `2000`.
-- `image` (String): Texture path for the curtain. Default: Built-in red curtain.
+- `image` (String): Texture path for the curtain. Default: solid black panel.
 
 ```javascript
 // Simple
@@ -261,7 +261,7 @@ CanvasFX.Curtain();
 
 ```javascript
 // Complete
-CanvasFX.Curtain({ duration: 5000, image: "modules/canvas-fx/assets/images/curtain.webp" });
+CanvasFX.Curtain({ duration: 5000, image: "path/to/your-image.webp" });
 ```
 
 ### 11. Spin
@@ -386,7 +386,7 @@ Displays a large number that counts from a start value to an end value.
 - `start` (Number): Number to start at. Default: `10`.
 - `end` (Number): Number to end at. Default: `0`.
 - `color` (String): Color of the text. Default: `"white"`.
-- `audio` (String): Path to a tick sound effect played on every change. Default: Built-in click.
+- `audio` (String): Path to a tick sound effect played on every change. Default: none (silent).
 
 ```javascript
 // Simple
@@ -412,12 +412,12 @@ Displays a sequence of images from a folder with crossfade transitions. Stops au
 
 ```javascript
 // Simple
-CanvasFX.Slideshow("modules/canvas-fx/assets/images/slideshow");
+CanvasFX.Slideshow("path/to/your-folder");
 ```
 
 ```javascript
 // Complete
-CanvasFX.Slideshow("modules/canvas-fx/assets/images/slideshow", { interval: 5, fade: 2000 });
+CanvasFX.Slideshow("path/to/your-folder", { interval: 5, fade: 2000 });
 ```
 
 ### 19. Sci-Fi Level Up
@@ -432,17 +432,16 @@ Displays a centered 3D holographic HUD (Three.js) announcing a level-up. A burst
 - `duration` (Number): Total seconds. `0` = auto (~9s). Always floored at a minimum of `7` seconds regardless of what's passed. Default: `0`.
 - `accent` (String): Primary hologram color. Default: `"#00e5ff"`.
 - `accent2` (String): Secondary hologram color. Default: `"#2979ff"`.
-- `audio` (String): Sound played with the effect. Unlike the other effects, this one ships a built-in default: `modules/canvas-fx/assets/audio/victory.mp3` (~6s, so it finishes shortly before the visuals do). Pass an empty string or `null` to run it silently.
+- `audio` (String): Sound played with the effect. Default: none (silent). Pass your own audio path to play a sting alongside it.
 - `volume` (Number): Audio volume (0.0 to 1.0). Default: `0.8`.
 
 ```javascript
-// Simple (plays the built-in victory sting)
+// Simple (silent by default)
 CanvasFX.SciFiLevelUp();
 ```
 
 ```javascript
-// Silent, or with your own sound
-CanvasFX.SciFiLevelUp({ audio: "" });
+// With your own sound
 CanvasFX.SciFiLevelUp({ audio: "sounds/fanfare.ogg", volume: 0.5 });
 ```
 

@@ -514,8 +514,7 @@ class CanvasFXManager {
     handleCurtain(data) {
         if (!this.curtainLayer) return;
         this.curtainLayer.innerHTML = ""; this.curtainLayer.style.display = "block";
-        const image = data.image || `modules/${MODULE_ID}/assets/images/curtain.webp`;
-        const duration = (data.duration || 2000); 
+        const duration = (data.duration || 2000);
         const left = document.createElement("div"); left.className = "cfx-curtain-panel left";
         const right = document.createElement("div"); right.className = "cfx-curtain-panel right";
         if (data.image) { left.style.backgroundImage = `url(${data.image})`; right.style.backgroundImage = `url(${data.image})`; }

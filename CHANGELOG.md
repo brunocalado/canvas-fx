@@ -1,3 +1,24 @@
+# 1.0.9
+
+### Removed
+- All bundled assets (`assets/` — 7 audio files, 9 images including the module logo and the
+  slideshow set, and 1 demo video) have been removed from the module. Effects and the Builder
+  that used them as defaults now start blank/silent instead of pointing at a bundled file.
+- The README's "Images and audio assets are public domain (CC0)" line, since the module no longer
+  bundles any image or audio assets.
+
+### Changed
+- **Demo gallery** (`CanvasFX.Demo()`): the icon on every entry changed from the module's logo to
+  Foundry's core `icons/svg/explosion.svg`. Entries that existed only to showcase bundled sample
+  media — "Full Screen Cover (Image)", "Full Screen Cover (Video)", "Rain Effects (Image)" — were
+  removed; `ScreenCover` and `RainImage` themselves are unaffected and still available through
+  `CanvasFX.Builder()` for your own files.
+- **Sci-Fi Level Up**: no longer ships a built-in default sound. Silent by default now unless you
+  pass your own path in `audio`.
+- Builder (`CanvasFX.Builder()`): the audio/image/folder fields for Countdown, Curtain, Flash,
+  GlassShatter, RainImage, ScreenCover, and Slideshow now default to blank instead of a bundled
+  sample path — pick your own file via the file picker.
+
 # 1.0.8
 
 ### Added

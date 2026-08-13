@@ -34,22 +34,22 @@ const EFFECTS = {
         { name: "start", type: "number", label: "Start Number", default: 10 },
         { name: "end", type: "number", label: "End Number", default: 0 },
         { name: "color", type: "color", label: "Color", default: "#ffffff" },
-        { name: "audio", type: "text", label: "Tick Sound", picker: "audio", default: `modules/${MODULE_ID}/assets/audio/countdown.mp3` }
+        { name: "audio", type: "text", label: "Tick Sound", picker: "audio", default: "" }
     ],
     "Curtain": [
         { name: "duration", type: "number", label: "Open Time (ms)", default: 2000 },
-        { name: "image", type: "text", label: "Image URL", picker: "image", default: `modules/${MODULE_ID}/assets/images/curtain.webp` }
+        { name: "image", type: "text", label: "Image URL", picker: "image", default: "" }
     ],
     "Flash": [
         { name: "color", type: "color", label: "Color", default: "#ffffff" },
         { name: "duration", type: "number", label: "Duration (ms)", default: 1000 },
         { name: "iterations", type: "number", label: "Iterations", default: 1 },
         { name: "interval", type: "number", label: "Interval (ms)", default: 200 },
-        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: `modules/${MODULE_ID}/assets/audio/thunder.mp3` }
+        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: "" }
     ],
     "GlassShatter": [
         { name: "count", type: "number", label: "Shards", default: 200 },
-        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: `modules/${MODULE_ID}/assets/audio/glass_shatter.mp3` }
+        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: "" }
     ],
     "Letterbox": [
         { name: "active", type: "checkbox", label: "Active", default: true },
@@ -72,7 +72,7 @@ const EFFECTS = {
         { name: "direction", type: "select", label: "Direction", options: ["top-bottom", "bottom-top", "left-right", "right-left"], default: "top-bottom" }
     ],
     "RainImage": [
-        { name: "content", type: "text", label: "Image Path", picker: "image", default: `modules/${MODULE_ID}/assets/images/cute-head.webp` },
+        { name: "content", type: "text", label: "Image Path", picker: "image", default: "" },
         { name: "count", type: "number", label: "Count (Burst)", default: 80 },
         { name: "speed", type: "number", label: "Speed", default: 300 },
         { name: "scale", type: "number", label: "Scale", default: 1 },
@@ -92,8 +92,8 @@ const EFFECTS = {
         { name: "thickness", type: "number", label: "Thickness", default: 20 }
     ],
     "ScreenCover": [
-        { name: "content", type: "text", label: "Image/Video URL", picker: "imagevideo", default: `modules/${MODULE_ID}/assets/images/light-vs-dark.webp` },
-        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: `modules/${MODULE_ID}/assets/audio/light-vs-dark.mp3` },
+        { name: "content", type: "text", label: "Image/Video URL", picker: "imagevideo", default: "" },
+        { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: "" },
         { name: "opacity", type: "number", label: "Opacity", default: 1.0 },
         { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
     ],
@@ -102,7 +102,7 @@ const EFFECTS = {
         { name: "duration", type: "number", label: "Duration (ms)", default: 500 }
     ],
     "Slideshow": [
-        { name: "content", type: "text", label: "Folder Path", picker: "folder", default: `modules/${MODULE_ID}/assets/images/slideshow` },
+        { name: "content", type: "text", label: "Folder Path", picker: "folder", default: "" },
         { name: "interval", type: "number", label: "Slide Time (sec)", default: 3 },
         { name: "fade", type: "number", label: "Crossfade (ms)", default: 1000 }
     ],

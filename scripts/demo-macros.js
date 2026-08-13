@@ -6,9 +6,7 @@
  * it under the terms of the GNU General Public License version 3.
  */
 
-import { MODULE_ID } from "./constants.js";
-
-const DEMO_ICON = `modules/${MODULE_ID}/assets/logos/logo.webp`;
+const DEMO_ICON = "icons/svg/explosion.svg";
 
 /**
  * Entries shown in the CanvasFX.Demo() dialog. These used to be Macro
@@ -40,28 +38,14 @@ export const DEMO_MACROS = [
         img: DEMO_ICON,
         run: () => CanvasFX.Flash({
             duration: 2000,
-            color: "#00ffff",
-            audio: `modules/${MODULE_ID}/assets/audio/thunder.mp3` // Optional
+            color: "#00ffff"
         })
-    },
-    {
-        name: "Full Screen Cover (Image)",
-        img: DEMO_ICON,
-        run: () => CanvasFX.ScreenCover(`modules/${MODULE_ID}/assets/images/light-vs-dark.webp`, {
-            duration: 4,
-            audio: `modules/${MODULE_ID}/assets/audio/light-vs-dark.mp3`
-        })
-    },
-    {
-        name: "Full Screen Cover (Video)",
-        img: DEMO_ICON,
-        run: () => CanvasFX.ScreenCover(`modules/${MODULE_ID}/assets/video/demo.mp4`)
     },
     {
         name: "Glass Shatter",
         img: DEMO_ICON,
         // Simulates the screen shattering like glass, accompanied by a heavy shake.
-        run: () => CanvasFX.GlassShatter({ audio: `modules/${MODULE_ID}/assets/audio/glass_shatter.mp3` })
+        run: () => CanvasFX.GlassShatter()
     },
     {
         name: "Letterbox",
@@ -85,25 +69,13 @@ export const DEMO_MACROS = [
         run: () => CanvasFX.Rain("🔥", { count: 50, speed: 300, time: 6, scale: 3 })
     },
     {
-        name: "Rain Effects (Emote with Sound)",
+        name: "Rain Effects (Emote, Timed)",
         img: DEMO_ICON,
-        // Timed rain with sound
+        // Timed rain instead of an instant burst
         run: () => CanvasFX.Rain("💰", {
             count: 80,
             time: 5,
-            audio: `modules/${MODULE_ID}/assets/audio/coins.mp3`,
             scale: 2
-        })
-    },
-    {
-        name: "Rain Effects (Image)",
-        img: DEMO_ICON,
-        // Spawns images raining down
-        run: () => CanvasFX.RainImage(`modules/${MODULE_ID}/assets/images/cute-head.webp`, {
-            count: 20,
-            scale: 1.5,
-            speed: 200,
-            time: 6
         })
     },
     {
@@ -132,8 +104,7 @@ export const DEMO_MACROS = [
         run: () => CanvasFX.ScreenShake({
             intensity: "extreme",
             duration: 4000,
-            direction: "random",
-            audio: `modules/${MODULE_ID}/assets/audio/earthquake.mp3`
+            direction: "random"
         })
     },
     {
@@ -158,12 +129,11 @@ export const DEMO_MACROS = [
         })
     },
     {
-        name: "Text (Giant Overlay + Sound)",
+        name: "Text (Giant Overlay, Alt Style)",
         img: DEMO_ICON,
         run: () => CanvasFX.Text("VICTORY", {
             color: "gold",
-            backgroundColor: "rgba(0,0,0,0.5)",
-            audio: `modules/${MODULE_ID}/assets/audio/victory.mp3`
+            backgroundColor: "rgba(0,0,0,0.5)"
         })
     },
     {

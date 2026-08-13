@@ -61,6 +61,4 @@ https://raw.githubusercontent.com/brunocalado/canvas-fx/main/module.json
 
 Code licensed under [LICENSE](LICENSE).
 
-*Images and audio assets are public domain (CC0).*
-
 *Bundles [Three.js](https://threejs.org) (MIT, see `lib/LICENSE-three.md`) for the 3D effects.*
