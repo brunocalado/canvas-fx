@@ -754,7 +754,7 @@ class CanvasFXManager {
     handleVignette(d) {
         this.#setFilter("vignette", d, el => {
             const rgb = this.colorToRGB(d.color || "black");
-            el.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity || 0.8}) 100%)`;
+            el.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity ?? 0.8}) 100%)`;
         });
     }
     handleFrost(d) {

@@ -13,6 +13,7 @@
 - [Fixed] Rain and RainImage called without a count spawn 20 particles, as documented, instead of nothing.
 - [Fixed] Countdown keeps start and end within 0–1000 as intended.
 - [Fixed] Vignette now uses its color option instead of always being black.
+- [Fixed] Vignette with `intensity: 0` is fully transparent instead of falling back to 0.8.
 - [Added] ScreenShake takes a `direction` option: "both" (default), "horizontal" or "vertical". The "Shake Screen (Vertical / Heavy)" demo now really shakes vertically.
 - [Changed] Text and ScreenCover with `duration: 0` now stay on screen until `CanvasFX.Clear()`, like the screen filters; before, 0 fell back to the default duration.
 - [Fixed] Builder: "Create Macro" works with quotes or backslashes in the text or path, and no longer says the macro was created when it was not.
