@@ -9,8 +9,6 @@ Before writing macros, you can use these tools to test effects:
 - `CanvasFX.Builder()`: Opens a UI to configure, test, and generate macro code for effects.
 - `CanvasFX.Demo()`: Opens a gallery of pre-configured examples.
 
----
-
 ## API Reference
 
 The module exposes a global object `CanvasFX`. Use these commands inside any **Script Macro**.
@@ -22,8 +20,6 @@ These options are available for **all** effects (unless stated otherwise).
 - `audio` (String): Path to an audio file to play in sync with the effect. Not played by ScreenBorder; Countdown plays it on every tick instead.
 - `volume` (Number): Audio volume (0.0 to 1.0). Default: `0.8`. `0` is treated as unset and also plays at `0.8`. Countdown's ticks always play at `0.8`.
 
----
-
 ### 1. Rain
 Spawns emojis or text raining from the screen.
 
@@ -33,7 +29,7 @@ Spawns emojis or text raining from the screen.
 - `content` (String): The emoji or text to rain (e.g., "🔥", "Gold"). **Required**.
 
 **Options:**
-- `count` (Number): Total particles to spawn in a burst. Default: `20`.
+- `count` (Number): Total particles to spawn. With `time` at `0` they all appear in one burst; otherwise they are spread over `time`. Default: `20`.
 - `speed` (Number): Fall speed in pixels per second. Default: `300`.
 - `scale` (Number): Size multiplier. Default: `1`.
 - `time` (Number): Duration of the emitter in seconds. If `0`, it spawns a single burst defined by `count`. Default: `0`.
@@ -63,7 +59,7 @@ Spawns images raining from the screen.
 - `path` (String): URL/Path to the image file. **Required**.
 
 **Options:**
-- `count` (Number): Total particles (burst). Default: `20`.
+- `count` (Number): Total particles, in one burst or spread over `time`. Default: `20`.
 - `speed` (Number): Fall speed. Default: `300`.
 - `scale` (Number): Size multiplier. Default: `1`.
 - `time` (Number): Emitter duration in seconds. Default: `0`.
@@ -387,7 +383,7 @@ CanvasFX.Vignette();
 CanvasFX.Vignette({ intensity: 0.9, duration: 10, color: "darkred" });
 ```
 
-### 16. Night Vision / Black & White (Filter)
+### 16. Night vision / Black & white (Filter)
 Preset filters.
 
 **Syntax:**
@@ -499,6 +495,7 @@ Displays a sequence of images from a folder with crossfade transitions. Stops au
 
 **Arguments:**
 - `path` (String): Folder path containing images. **Required**.
+  The folder is looked up in User Data, where world and module files live; core folders such as `icons/` cannot be used.
   Only image files are shown (any format Foundry recognizes as an image); video files in the folder are skipped.
 
 **Options:**
@@ -515,7 +512,7 @@ CanvasFX.Slideshow("path/to/your-folder");
 CanvasFX.Slideshow("path/to/your-folder", { interval: 5, fade: 2000 });
 ```
 
-### 22. Sci-Fi Level Up
+### 22. Sci-fi level up
 Displays a centered 3D holographic HUD (Three.js) announcing a level-up. A burst of warp streaks draws a chamfered HUD frame out of nothing; the outline thickens into beveled glass, instrument readouts and circuit traces populate it, and a flare at the center punches the text in. Once the text has fully formed, particles sampled from its own glyph shape erupt outward from it. Long messages are scaled down automatically so they always fit inside the frame.
 
 **Syntax:** `CanvasFX.SciFiLevelUp(options)`

@@ -1,50 +1,44 @@
 # Canvas FX
 
-**Canvas FX** is a lightweight visual effects module designed exclusively for **Foundry VTT v14**. It allows Game Masters to trigger cinematic screen effects—like rain, shakes, flashes, and filters—that appear **above the UI** and synchronize instantly for all connected players.
+Canvas FX plays screen effects in Foundry VTT v14 from a macro: emoji rain, a screen shake, a lightning flash, letterbox bars, a sepia flashback. The effect covers the whole screen, above the Foundry interface, and every connected player sees it at the same moment.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-Donate-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/mestredigital) [![More Modules](https://img.shields.io/badge/Foundry%20VTT-More%20Modules-red?style=for-the-badge&logo=gamepad)](https://mestredigital.online/pages/projetos-en)
 
----
+## What it can do
 
-## ⚠️ How to Use
+- Rain emojis (🔥, ❄️, 💰), text or your own images across the screen, from any of the four sides.
+- Shake the screen, shatter it like glass, or flash it in any color for lightning and explosions.
+- Close the scene with theater curtains, add letterbox bars, run a slideshow from a folder, or cover the screen with an image or video.
+- Apply full-screen filters: Blur, Night Vision, Black & White, Sepia, Vignette, a color tint, Film Grain and Frost. Several can be on at once.
+- Show giant text that can pulse or shake, a pulsing colored border for low health, or a countdown.
+- Spin the whole view, or make it pulse like a heartbeat.
+- Show a 3D holographic "Level Up" HUD (Three.js) whose text erupts into particles once it has fully formed. It has a solid black backdrop by default and can also be transparent.
+- Play a sound together with any of these.
 
-**This module operates via Script Macros.**
+## How to use it
 
-To trigger effects during your game, you will need to create simple script macros. Don't worry if you don't know code—the documentation provides copy-and-paste examples for everything.
+The effects are triggered by script macros. You don't need to know how to code: the documentation has an example to copy and paste for every effect.
 
-### 1. Explore & Test
-Before writing your macros, you can use these internal tools to preview effects and understand how they look:
+### 1. Try the effects
 
-* **`CanvasFX.Builder()`** Opens a visual interface where you can tweak settings, play effects immediately, and **automatically create macros** with one click.
-* **`CanvasFX.Demo()`** Opens a gallery of pre-configured examples to show you what is possible.
+Before writing a macro, you can preview the effects with two tools:
 
-| Builder — tweak settings, play, and generate a macro | Demo — gallery of ready-made examples |
+- `CanvasFX.Builder()` opens a window where you change the settings, play the effect right away and turn it into a macro with one click.
+- `CanvasFX.Demo()` opens a gallery of ready-made examples.
+
+| Builder: tweak settings, play, and generate a macro | Demo: gallery of ready-made examples |
 | :---: | :---: |
 | <img src="docs/macro-builder-quick-preview.webp" alt="Canvas FX Builder window showing GlassShatter selected, with Shards and Audio URL fields and Play Effect, Create Macro, Reset and Clear Screen buttons" width="400"> | <img src="docs/quick-demo.webp" alt="Canvas FX Demo gallery listing effects such as Blur, Flash, Letterbox, Sci-Fi Level Up and Vignette, with a Clear All FX button" width="400"> |
 
-### 2. Create Your Effects
-Once you have chosen an effect, refer to the **API reference**. It contains the exact code snippets you need to copy into your macros to replicate the features listed below.
+### 2. Write your macros
 
-👉 **[Read the API Reference](docs/API.md)**
+Once you have chosen an effect, the API reference has the exact code to put in your macro, with every option.
 
----
+[Read the API Reference](docs/API.md)
 
-## ✨ Features
+## Installation
 
-By using the simple commands found in the API reference, you can create:
-
-* **🌧️ Particles:** Rain emojis (🔥, ❄️, 💰), text, or custom images.
-* **💥 Impact:** Screen shakes, glass shattering simulations, and bright flashes (lightning/explosions).
-* **🎬 Cinematics:** Cinematic "Letterbox" bars, theater curtains, **slideshows**, or full-screen image/video covers.
-* **🎨 Filters:** Full-screen effects like **Blur**, **Night Vision**, **Black & White**, **Vignette**, or Color Tints.
-* **📢 Alerts:** Giant animated text overlays (Pulse/Shake), pulsing screen borders (Low Health), or **dramatic countdowns**.
-* **🔄 Motion:** Screen spinning or pulsating (heartbeat effect).
-* **🚀 Sci-Fi:** A 3D holographic "Level Up" HUD (Three.js) where the text erupts into particles once fully formed, with a solid black backdrop by default (transparent mode also available).
-* **🔊 Audio:** Automatic sound synchronization with visual triggers.
-
----
-
-## 📥 Manual Installation
+The module requires Foundry VTT v14.
 
 1.  Copy this manifest link:
 
@@ -54,8 +48,6 @@ https://raw.githubusercontent.com/brunocalado/canvas-fx/main/module.json
     
 2.  In Foundry VTT, go to **Add-on Modules** -> **Install Module**.
 3.  Paste the link into the **Manifest URL** field and click Install.
-
----
 
 ## License
 
