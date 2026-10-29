@@ -1,4 +1,4 @@
-# Unreleased
+# 1.1.0
 
 - [Added] `CanvasFX.Frost()`: frost creeping in from the screen edges, combinable with the other filters. Also in the Builder and the Demo.
 - [Added] Recipes in the Demo and `docs/API.md`: Chapter Title, Damage Hit, Flashback and Earthquake, built from existing effects.
