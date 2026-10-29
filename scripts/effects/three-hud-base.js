@@ -9,19 +9,16 @@
 /**
  * ThreeHudEffectBase — shared foundation for Canvas FX's Three.js HUD effects.
  * Owns the alpha-safe renderer/scene/camera lifecycle, the RAF loop, resize
- * and mouse-parallax listeners, and full GPU/DOM teardown. It also exposes a
- * combinable "kit" of the holographic building blocks these effects are made
- * of — concentric HUD rings, a gyroscopic reactor core, frame brackets, glass
- * panels, a volumetric beam, glow sprites, ambient particle clouds, drifting
- * sparkles, floating fragments, expanding shockwaves, depth grids, and a
- * generic point-burst particle system (spawn a cloud of points at a given set
- * of origins and let it explode outward and fade).
+ * and mouse-parallax listeners, and full GPU/DOM teardown.
  *
- * On top of those there is a rectangular-HUD set: a chamfered frame with real
- * bevelled thickness (plus the path helpers it is built from), greeble plates
- * that pin along a frame's outline, radial warp streaks, procedurally drawn
- * instrument panels, PCB-style circuit traces, large tick dial rings, and an
- * anamorphic center flare.
+ * It also exposes the holographic building blocks the effects compose: frame
+ * brackets, glow sprites, drifting sparkles, expanding shockwaves, a generic
+ * point-burst particle system (spawn a cloud of points at a given set of origins
+ * and let it explode outward and fade), a chamfered frame with real bevelled
+ * thickness (plus the path helpers it is built from), greeble plates that pin
+ * along a frame's outline, radial warp streaks, procedurally drawn instrument
+ * panels, PCB-style circuit traces, large tick dial rings, and an anamorphic
+ * center flare.
  *
  * A subclass composes whichever blocks it needs inside `_buildScene(THREE)`
  * and drives its own choreography from `_animate(t, dt)`; this base class
@@ -39,8 +36,6 @@ function loadThree() {
 }
 
 export const rand = (a, b) => a + Math.random() * (b - a);
-// Cheap approximately-normal random in [-1, 1], used to cluster particles at the center
-export const randn = () => (Math.random() + Math.random() + Math.random()) / 1.5 - 1;
 export const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
 export const smooth = (x) => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
 
@@ -158,10 +153,9 @@ export class ThreeHudEffectBase {
 
         const textures = [];
         const glowTex = this._glowTexture(THREE);
-        const beamTex = this._beamTexture(THREE);
-        textures.push(glowTex, beamTex);
+        textures.push(glowTex);
 
-        this._three = { THREE, renderer, scene, camera, master, textures, glowTex, beamTex };
+        this._three = { THREE, renderer, scene, camera, master, textures, glowTex };
 
         this._onResize = () => {
             if (!this._three) return;
@@ -250,24 +244,6 @@ export class ThreeHudEffectBase {
         return geo;
     }
 
-    /** The 12 edges of a cube, as one LineSegments geometry — used for the reactor core. */
-    _boxGeo(THREE, half) {
-        const c = [
-            [-half, -half, -half], [half, -half, -half], [half, half, -half], [-half, half, -half],
-            [-half, -half, half], [half, -half, half], [half, half, half], [-half, half, half]
-        ];
-        const edges = [
-            [0, 1], [1, 2], [2, 3], [3, 0],
-            [4, 5], [5, 6], [6, 7], [7, 4],
-            [0, 4], [1, 5], [2, 6], [3, 7]
-        ];
-        const pts = [];
-        for (const [a, b] of edges) pts.push(...c[a], ...c[b]);
-        const geo = new THREE.BufferGeometry();
-        geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-        return geo;
-    }
-
     /** Flat XY lattice centered on the origin — interior detail for a panel or plate. */
     _gridGeo(THREE, w, h, cols, rows) {
         const pts = [];
@@ -299,106 +275,12 @@ export class ThreeHudEffectBase {
         return new THREE.CanvasTexture(canvas);
     }
 
-    /** White gradient shaft, bright at the horizontal center, fading at both vertical ends. */
-    _beamTexture(THREE) {
-        const canvas = document.createElement("canvas");
-        canvas.width = 128;
-        canvas.height = 256;
-        const ctx = canvas.getContext("2d");
-        const gx = ctx.createLinearGradient(0, 0, 128, 0);
-        gx.addColorStop(0, "rgba(255,255,255,0)");
-        gx.addColorStop(0.5, "rgba(255,255,255,0.9)");
-        gx.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = gx;
-        ctx.fillRect(0, 0, 128, 256);
-        const gy = ctx.createLinearGradient(0, 0, 0, 256);
-        gy.addColorStop(0, "rgba(0,0,0,0)");
-        gy.addColorStop(0.5, "rgba(0,0,0,1)");
-        gy.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.globalCompositeOperation = "destination-in";
-        ctx.fillStyle = gy;
-        ctx.fillRect(0, 0, 128, 256);
-        return new THREE.CanvasTexture(canvas);
-    }
-
     /* --- Combinable HUD building blocks --- */
-
-    /** Concentric facing rings + dial arcs + a distant slow outer ring + two tilted gyroscope rings. */
-    _addHudRings(THREE, master, accent, accent2) {
-        const ringA = new THREE.LineLoop(this._circleGeo(THREE, 4.2, 128), this._lineMat(THREE, accent, 0.55));
-        const ringB = new THREE.LineSegments(this._arcGeo(THREE, 4.8, 4, 0.55), this._lineMat(THREE, accent, 0.85));
-        const ringC = new THREE.LineSegments(this._arcGeo(THREE, 3.3, 3, 0.4), this._lineMat(THREE, accent2, 0.6));
-        const hex = new THREE.LineLoop(this._circleGeo(THREE, 6.8, 6), this._lineMat(THREE, accent2, 0.3));
-        const outerRing = new THREE.LineLoop(this._circleGeo(THREE, 9.6, 128), this._lineMat(THREE, accent2, 0.12));
-        const gyroA = new THREE.LineLoop(this._circleGeo(THREE, 5.6, 128), this._lineMat(THREE, accent2, 0.35));
-        gyroA.rotation.x = 1.25;
-        const gyroB = new THREE.LineLoop(this._circleGeo(THREE, 6.1, 128), this._lineMat(THREE, accent, 0.25));
-        gyroB.rotation.x = -1.35;
-        gyroB.rotation.y = 0.4;
-        master.add(ringA, ringB, ringC, hex, outerRing, gyroA, gyroB);
-        return { ringA, ringB, ringC, hex, outerRing, gyroA, gyroB };
-    }
-
-    /** Two nested wireframe cubes tumbling independently behind the focal point — a "reactor core". */
-    _addReactorCore(THREE, master, accent, accent2, { z = -1.8 } = {}) {
-        const reactorMat1 = this._lineMat(THREE, accent, 0.5);
-        const reactorMat2 = this._lineMat(THREE, accent2, 0.35);
-        const reactorA = new THREE.LineSegments(this._boxGeo(THREE, 1.3), reactorMat1);
-        reactorA.rotation.set(0.6, 0.9, 0);
-        reactorA.position.z = z;
-        const reactorB = new THREE.LineSegments(this._boxGeo(THREE, 1.9), reactorMat2);
-        reactorB.rotation.set(-0.4, 0.3, 0.7);
-        reactorB.position.z = z;
-        master.add(reactorA, reactorB);
-        return { reactorA, reactorB, reactorMat1, reactorMat2 };
-    }
 
     _addFrameBrackets(THREE, master, accent, half = 7.6, arm = 1.5) {
         const brackets = new THREE.LineSegments(this._bracketGeo(THREE, half, arm), this._lineMat(THREE, accent, 0.7));
         master.add(brackets);
         return brackets;
-    }
-
-    /** `panelCfg` entries are `[width, height, z, opacity, rotationY]`. */
-    _addGlassPanels(THREE, master, accent, accent2, panelCfg) {
-        const panels = [];
-        for (const [pw, ph, pz, op, ry] of panelCfg) {
-            const group = new THREE.Group();
-            const geo = new THREE.PlaneGeometry(pw, ph);
-            group.add(new THREE.Mesh(geo, this._glassMat(THREE, accent2, op)));
-            group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), this._lineMat(THREE, accent, 0.22)));
-            group.position.z = pz;
-            group.rotation.y = ry;
-            master.add(group);
-            panels.push({ group, baseRotY: ry, phase: rand(0, Math.PI * 2) });
-        }
-        return panels;
-    }
-
-    _updateGlassPanels(panels, t) {
-        for (const p of panels) {
-            p.group.rotation.y = p.baseRotY + Math.sin(t * 0.6 + p.phase) * 0.04;
-            p.group.position.y = Math.sin(t * 0.5 + p.phase) * 0.15;
-        }
-    }
-
-    /** Volumetric light beam through the center: two crossed additive planes. */
-    _addVolumetricBeam(THREE, master, beamTex, accent, { width = 3.2, height = 17, z = -0.5 } = {}) {
-        const beamGroup = new THREE.Group();
-        const beamMats = [];
-        for (const ry of [0, Math.PI / 2]) {
-            const mat = new THREE.MeshBasicMaterial({
-                map: beamTex, color: accent, transparent: true, opacity: 0.4,
-                side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false
-            });
-            const beam = new THREE.Mesh(new THREE.PlaneGeometry(width, height), mat);
-            beam.rotation.y = ry;
-            beamGroup.add(beam);
-            beamMats.push(mat);
-        }
-        beamGroup.position.z = z;
-        master.add(beamGroup);
-        return { beamGroup, beamMats };
     }
 
     /** Soft additive sprite glow — fake bloom, alpha-safe. */
@@ -414,54 +296,9 @@ export class ThreeHudEffectBase {
         return { sprite, mat };
     }
 
-    /** `cloudCfg` entries are `[count, size, color, opacity]`. Particles orbit and drift upward, wrapping. */
-    _addParticleCloud(THREE, master, glowTex, cloudCfg) {
-        const clouds = [];
-        for (const [count, size, color, opacity] of cloudCfg) {
-            const pos = new Float32Array(count * 3);
-            const data = {
-                radius: new Float32Array(count), angle0: new Float32Array(count),
-                angVel: new Float32Array(count), y0: new Float32Array(count), yVel: new Float32Array(count)
-            };
-            for (let i = 0; i < count; i++) {
-                data.radius[i] = clamp(Math.abs(randn()) * 2.4 + 0.3, 0.3, 8);
-                data.angle0[i] = rand(0, Math.PI * 2);
-                data.angVel[i] = rand(0.05, 0.3) * (Math.random() < 0.5 ? -1 : 1);
-                data.y0[i] = rand(-7, 7);
-                data.yVel[i] = rand(0.12, 0.5);
-            }
-            const geo = new THREE.BufferGeometry();
-            geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-            const mat = new THREE.PointsMaterial({
-                map: glowTex, color, size, transparent: true, opacity,
-                blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
-            });
-            const points = new THREE.Points(geo, mat);
-            master.add(points);
-            clouds.push({ geo, mat, data, count, baseOpacity: opacity });
-        }
-        return clouds;
-    }
-
-    _updateParticleCloud(clouds, t, kick) {
-        for (const cloud of clouds) {
-            const pos = cloud.geo.attributes.position;
-            const d = cloud.data;
-            for (let i = 0; i < cloud.count; i++) {
-                const ang = d.angle0[i] + t * d.angVel[i];
-                const y = ((d.y0[i] + t * d.yVel[i]) % 14 + 14) % 14 - 7;
-                pos.array[i * 3] = Math.cos(ang) * d.radius[i];
-                pos.array[i * 3 + 1] = y;
-                pos.array[i * 3 + 2] = Math.sin(ang) * d.radius[i];
-            }
-            pos.needsUpdate = true;
-            cloud.mat.opacity = clamp(cloud.baseOpacity * (0.85 + kick * 0.5), 0, 1);
-        }
-    }
-
     /**
      * Drifting sparkle motes scattered through a large volume — a slower, non-orbiting
-     * particle layer (independent of `_addParticleCloud`) for extra ambient depth.
+     * particle layer for extra ambient depth.
      */
     _addSparkles(THREE, master, glowTex, { count = 260, color = 0xffffff, size = 0.05, spread = 10, opacity = 0.55 } = {}) {
         const pos = new Float32Array(count * 3);
@@ -504,49 +341,6 @@ export class ThreeHudEffectBase {
         sparkles.mat.opacity = clamp(sparkles.baseOpacity * (0.6 + 0.4 * Math.sin(t * 1.7)) + kick * 0.25, 0, 0.9);
     }
 
-    /** Small translucent HUD fragments (edged planes, stray lines, glass chips) orbiting the core. */
-    _addFragments(THREE, master, accent, accent2, count = 20) {
-        const fragGroup = new THREE.Group();
-        master.add(fragGroup);
-        const fragments = [];
-        for (let i = 0; i < count; i++) {
-            const type = i % 3;
-            const opacity = rand(0.2, 0.55);
-            let obj;
-            if (type === 0) {
-                const geo = new THREE.PlaneGeometry(rand(0.5, 1.4), rand(0.25, 0.8));
-                obj = new THREE.LineSegments(new THREE.EdgesGeometry(geo), this._lineMat(THREE, accent, opacity));
-                geo.dispose();
-            } else if (type === 1) {
-                const geo = new THREE.BufferGeometry();
-                geo.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0, rand(0.4, 1.2), 0, 0], 3));
-                obj = new THREE.LineSegments(geo, this._lineMat(THREE, accent2, opacity));
-            } else {
-                obj = new THREE.Mesh(new THREE.PlaneGeometry(rand(0.3, 0.7), rand(0.2, 0.5)), this._glassMat(THREE, accent, 0.08));
-            }
-            const ang = rand(0, Math.PI * 2);
-            const radius = rand(4.5, 7.5);
-            obj.position.set(Math.cos(ang) * radius, rand(-3, 3), rand(-3, 1.5));
-            obj.position.z += Math.sin(ang) * 0.5;
-            fragGroup.add(obj);
-            fragments.push({
-                obj, mat: obj.material, baseY: obj.position.y, baseOpacity: opacity,
-                phase: rand(0, Math.PI * 2), bobSpeed: rand(0.4, 1.1), flickerSpeed: rand(1.5, 4)
-            });
-        }
-        return { fragGroup, fragments };
-    }
-
-    _updateFragments(fragGroup, fragments, t, dt, kick) {
-        fragGroup.rotation.y += dt * 0.06;
-        for (const f of fragments) {
-            f.obj.position.y = f.baseY + Math.sin(t * f.bobSpeed + f.phase) * 0.25;
-            let opacity = f.baseOpacity * (0.55 + 0.45 * Math.sin(t * f.flickerSpeed + f.phase));
-            if (Math.sin(t * f.flickerSpeed * 3.7 + f.phase) > 0.985) opacity *= 0.15;
-            f.mat.opacity = clamp(opacity + kick * 0.2, 0, 1);
-        }
-    }
-
     /** Pooled expanding shockwave rings, fired together for a single volley. */
     _addShockwaves(THREE, master, accent, poolSize = 4) {
         const shockwaves = [];
@@ -579,32 +373,6 @@ export class ThreeHudEffectBase {
                 sw.line.visible = false;
             }
         }
-    }
-
-    /** A faint perspective grid below and a mirrored one above, for depth. */
-    _addDepthGrids(THREE, scene, accent, accent2, { size = 46, divisions = 46, floorY = -6.2, ceilY = 6.4, z = -2 } = {}) {
-        const grid = new THREE.GridHelper(size, divisions, accent, accent2);
-        grid.material.transparent = true;
-        grid.material.opacity = 0.1;
-        grid.material.blending = THREE.AdditiveBlending;
-        grid.material.depthWrite = false;
-        grid.position.set(0, floorY, z);
-        scene.add(grid);
-
-        const gridTop = new THREE.GridHelper(size, divisions, accent2, accent);
-        gridTop.material.transparent = true;
-        gridTop.material.opacity = 0.07;
-        gridTop.material.blending = THREE.AdditiveBlending;
-        gridTop.material.depthWrite = false;
-        gridTop.position.set(0, ceilY, z);
-        scene.add(gridTop);
-
-        return { grid, gridTop };
-    }
-
-    _updateDepthGrids({ grid, gridTop }, t, kick) {
-        grid.material.opacity = clamp(0.08 + 0.03 * Math.sin(t * 1.3) + kick * 0.06, 0, 1);
-        gridTop.material.opacity = clamp(0.06 + 0.02 * Math.sin(t * 1.1 + 2) + kick * 0.05, 0, 1);
     }
 
     /* --- Chamfered frame: paths and the surfaces built from them --- */
