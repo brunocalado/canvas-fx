@@ -528,6 +528,49 @@ CanvasFX.SciFiLevelUp({
 });
 ```
 
+### Recipes
+Effects combine: call several at once, and screen filters stack instead of replacing each other.
+Use `await CanvasFX.Delay(seconds)` to sequence steps. Each recipe below is also in the Demo
+(`CanvasFX.Demo()`), under the same name with a `Recipe:` prefix.
+
+#### Chapter Title
+Opens a scene or a new chapter like a film title card. Text shows a single upper-case line, so short titles work best.
+
+```javascript
+CanvasFX.Letterbox({ active: true });
+// A translucent band, not fill "full": a full black box would hide the letterbox bars
+CanvasFX.Text("Chapter III", { fill: "band", backgroundColor: "rgba(0,0,0,0.6)", fontFamily: "Georgia, serif", duration: 4 });
+await CanvasFX.Delay(4.5);
+CanvasFX.Letterbox({ active: false });
+```
+
+#### Damage Hit
+A character takes a heavy blow.
+
+```javascript
+CanvasFX.Flash({ color: "#8b0000", duration: 350 });
+CanvasFX.ScreenShake({ intensity: "mild", duration: 250 });
+CanvasFX.Vignette({ color: "darkred", intensity: 0.9, duration: 1 });
+```
+
+#### Flashback
+A memory or a scene from the past. Four filters on at once.
+
+```javascript
+CanvasFX.Sepia({ duration: 8 });
+CanvasFX.Blur({ intensity: 1, duration: 8 });
+CanvasFX.FilmGrain({ duration: 8 });
+CanvasFX.Vignette({ intensity: 0.7, duration: 8 });
+```
+
+#### Earthquake
+The ground shakes and rocks fall.
+
+```javascript
+CanvasFX.ScreenShake({ intensity: "extreme", duration: 3000 });
+CanvasFX.Rain("🪨", { count: 15, speed: 600 });
+```
+
 ### Utility: Delay
 Pauses the macro execution for a set amount of time. Useful for chaining effects.
 

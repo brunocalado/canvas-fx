@@ -1,5 +1,6 @@
 # Unreleased
 
+- [Added] Recipes in the Demo and `docs/API.md`: Chapter Title, Damage Hit, Flashback and Earthquake, built from existing effects.
 - [Added] `CanvasFX.FilmGrain()`: an old-film overlay with grain, scratches and flicker that combines with the other filters. Also in the Builder and the Demo.
 - [Added] `CanvasFX.Sepia()` filter, also in the Builder and the Demo.
 - [Changed] Screen filters (Blur, BlackAndWhite, NightVision, Colorfy, Vignette) now combine instead of replacing each other. Calling the same filter again replaces it; pass `active: false` to remove one filter without clearing everything.

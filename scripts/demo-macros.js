@@ -166,6 +166,44 @@ export const DEMO_MACROS = [
         run: () => CanvasFX.ScreenBorder({ color: "#ffff00", thickness: 13 })
     },
     {
+        name: "Recipe: Chapter Title",
+        img: DEMO_ICON,
+        run: async () => {
+            CanvasFX.Letterbox({ active: true });
+            // A translucent band, not fill "full": a full black box would hide the letterbox bars
+            CanvasFX.Text("Chapter III", { fill: "band", backgroundColor: "rgba(0,0,0,0.6)", fontFamily: "Georgia, serif", duration: 4 });
+            await CanvasFX.Delay(4.5);
+            CanvasFX.Letterbox({ active: false });
+        }
+    },
+    {
+        name: "Recipe: Damage Hit",
+        img: DEMO_ICON,
+        run: () => {
+            CanvasFX.Flash({ color: "#8b0000", duration: 350 });
+            CanvasFX.ScreenShake({ intensity: "mild", duration: 250 });
+            CanvasFX.Vignette({ color: "darkred", intensity: 0.9, duration: 1 });
+        }
+    },
+    {
+        name: "Recipe: Flashback",
+        img: DEMO_ICON,
+        run: () => {
+            CanvasFX.Sepia({ duration: 8 });
+            CanvasFX.Blur({ intensity: 1, duration: 8 });
+            CanvasFX.FilmGrain({ duration: 8 });
+            CanvasFX.Vignette({ intensity: 0.7, duration: 8 });
+        }
+    },
+    {
+        name: "Recipe: Earthquake",
+        img: DEMO_ICON,
+        run: () => {
+            CanvasFX.ScreenShake({ intensity: "extreme", duration: 3000 });
+            CanvasFX.Rain("🪨", { count: 15, speed: 600 });
+        }
+    },
+    {
         name: "_Clear",
         img: DEMO_ICON,
         run: () => CanvasFX.Clear()
