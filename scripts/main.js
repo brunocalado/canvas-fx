@@ -156,7 +156,8 @@ class CanvasFXManager {
             const FilePickerClass = foundry.applications.apps.FilePicker.implementation
                 ?? foundry.applications.apps.FilePicker;
             const result = await FilePickerClass.browse("data", path);
-            const images = result.files.filter(f => f.match(/.(png|jpg|jpeg|webp|gif|webm)$/i));
+            // Core's list, so it follows whatever image types Foundry supports
+            const images = result.files.filter(f => foundry.helpers.media.ImageHelper.hasImageExtension(f));
             
             if (images.length === 0) {
                 ui.notifications.warn("CanvasFX: No images found in " + path);

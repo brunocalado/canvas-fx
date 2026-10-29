@@ -405,6 +405,7 @@ Displays a sequence of images from a folder with crossfade transitions. Stops au
 
 **Arguments:**
 - `path` (String): Folder path containing images. **Required**.
+  Only image files are shown (any format Foundry recognizes as an image); video files in the folder are skipped.
 
 **Options:**
 - `interval` (Number): Seconds to display each slide. Default: `3`.
