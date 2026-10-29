@@ -43,7 +43,7 @@ The module requires Foundry VTT v14.
 1.  Copy this manifest link:
 
 ```
-https://raw.githubusercontent.com/brunocalado/canvas-fx/main/module.json
+https://github.com/brunocalado/canvas-fx/releases/latest/download/module.json
 ```
     
 2.  In Foundry VTT, go to **Add-on Modules** -> **Install Module**.

@@ -5,6 +5,7 @@
 - [Added] `CanvasFX.FilmGrain()`: an old-film overlay with grain, scratches and flicker that combines with the other filters. Also in the Builder and the Demo.
 - [Added] `CanvasFX.Sepia()` filter, also in the Builder and the Demo.
 - [Changed] Screen filters (Blur, BlackAndWhite, NightVision, Colorfy, Vignette) now combine instead of replacing each other. Calling the same filter again replaces it; pass `active: false` to remove one filter without clearing everything.
+- [Changed] Versions are now published as GitHub releases. The manifest URL moved to `https://github.com/brunocalado/canvas-fx/releases/latest/download/module.json`; the old one keeps pointing to it.
 - [Changed] The macro reference is now `docs/API.md`, linked from the README.
 - [Fixed] A timed effect (Text, ScreenCover, Blur, Colorfy, NightVision, BlackAndWhite, Vignette, Curtain) no longer hides a newer effect on the same layer when its own time runs out, and Clear() now also stops a Flash in progress.
 - [Fixed] A slideshow reaching its last image no longer clears every other effect on screen.

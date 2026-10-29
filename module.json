@@ -28,7 +28,7 @@
   ],
   "socket": true,
   "url": "https://github.com/brunocalado/canvas-fx",
-  "manifest": "https://raw.githubusercontent.com/brunocalado/canvas-fx/main/module.json",
-  "download": "https://codeload.github.com/brunocalado/canvas-fx/zip/main",
+  "manifest": "https://github.com/brunocalado/canvas-fx/releases/latest/download/module.json",
+  "download": "https://github.com/brunocalado/canvas-fx/releases/latest/download/module.zip",
   "flags": {}
 }
