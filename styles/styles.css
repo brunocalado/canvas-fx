@@ -220,6 +220,10 @@
     z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none;
 }
 
+/* Film grain: noise tiles blend into the scene; the scratch canvas fills the element */
+.cfx-grain { mix-blend-mode: overlay; background-repeat: repeat; }
+.cfx-grain canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
 /* Black & White */
 .cfx-bw {
     backdrop-filter: grayscale(100%);

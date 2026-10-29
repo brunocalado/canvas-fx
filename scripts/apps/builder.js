@@ -40,6 +40,12 @@ const EFFECTS = {
         { name: "duration", type: "number", label: "Open Time (ms)", default: 2000 },
         { name: "image", type: "text", label: "Image URL", picker: "image", default: "" }
     ],
+    "FilmGrain": [
+        { name: "intensity", type: "number", label: "Intensity", default: 0.35 },
+        { name: "scratches", type: "checkbox", label: "Scratches", default: true },
+        { name: "flicker", type: "checkbox", label: "Flicker", default: true },
+        { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
+    ],
     "Flash": [
         { name: "color", type: "color", label: "Color", default: "#ffffff" },
         { name: "duration", type: "number", label: "Duration (ms)", default: 1000 },
@@ -142,6 +148,7 @@ const EFFECT_DESCRIPTIONS = {
     Colorfy: "Applies a colored multiply overlay to the screen.",
     Countdown: "Displays a large number counting down (or up) from a start value to an end value.",
     Curtain: "Closes and opens theater curtains over the screen.",
+    FilmGrain: "Old-film grain, scratches and flicker over the screen.",
     Flash: "A sudden bright flash of light, optionally repeated.",
     GlassShatter: "Simulates the screen shattering into glass shards. Includes a screen shake.",
     Letterbox: "Adds cinematic black bars to the top and bottom of the screen.",

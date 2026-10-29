@@ -34,8 +34,8 @@ const LAYERS = {
 // One element with a combined backdrop-filter list would not do either: Colorfy, Night Vision
 // and Vignette are painted overlays, not filter functions.
 // Backdrop filters sit lowest so the painted overlays above them are not blurred or greyed;
-// the vignette frames the colour kinds.
-const FILTER_Z = { blur: 120001, bw: 120002, sepia: 120003, colorfy: 120004, night: 120005, vignette: 120006 };
+// the vignette frames the colour kinds. Grain is on the lens, above ScreenCover and weather.
+const FILTER_Z = { blur: 120001, bw: 120002, sepia: 120003, colorfy: 120004, night: 120005, vignette: 120006, grain: 165000 };
 
 class CanvasFXManager {
     // Auto-hide timers keyed by layer. Restarting an effect on a layer replaces its
@@ -44,6 +44,8 @@ class CanvasFXManager {
     #timers = new Map();
     // Bumped by every Flash and by Clear(); a running Flash loop stops when its token is stale.
     #flashRun = 0;
+    // Stop functions of animated filter kinds, called before their element is removed.
+    #filterStops = new Map();
 
     constructor() {
         // DOM layers, one field per LAYERS entry
@@ -137,6 +139,7 @@ class CanvasFXManager {
     Vignette(options = {}) { this.emit("filter_vignette", options); }
     Blur(options = {}) { this.emit("filter_blur", options); }
     Sepia(options = {}) { this.emit("filter_sepia", options); }
+    FilmGrain(options = {}) { this.emit("filter_grain", options); }
     
     Countdown(options = {}) { 
         // Validation
@@ -231,6 +234,7 @@ class CanvasFXManager {
                 case "filter_vignette": this.handleVignette(data); break;
                 case "filter_blur": this.handleBlur(data); break;
                 case "filter_sepia": this.handleSepia(data); break;
+                case "filter_grain": this.handleFilmGrain(data); break;
                 case "countdown": this.handleCountdown(data); break;
                 case "slideshow": this.handleSlideshow(data); break;
                 case "scifi_levelup": this.handleSciFiLevelUp(data); break;
@@ -307,7 +311,7 @@ class CanvasFXManager {
         if (this.coverLayer) this.coverLayer.style.opacity = 0;
         if (this.flashLayer) this.flashLayer.style.transition = "";
 
-        document.querySelectorAll(".cfx-filter").forEach(el => el.remove());
+        for (const kind of Object.keys(FILTER_Z)) this.#removeFilter(kind);
 
         document.body.style.transform = "";
         document.body.style.transition = "";
@@ -750,8 +754,16 @@ class CanvasFXManager {
             el.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity || 0.8}) 100%)`;
         });
     }
+    handleFilmGrain(d) {
+        this.#setFilter("grain", d, el => this.#startGrain(el, {
+            intensity: d.intensity ?? 0.35, scratches: d.scratches ?? true, flicker: d.flicker ?? true
+        }));
+    }
 
-    /** Applies one filter kind, replacing only that kind, and schedules only its own expiry. */
+    /**
+     * Applies one filter kind, replacing only that kind, and schedules only its own expiry.
+     * `apply` may return a stop function for an animated kind; it runs when the kind is removed.
+     */
     #setFilter(kind, data, apply) {
         this.#removeFilter(kind);
         if (data.active === false) return;
@@ -759,14 +771,102 @@ class CanvasFXManager {
         el.id = `canvas-fx-filter-${kind}`;
         el.className = "cfx-filter";
         el.style.zIndex = FILTER_Z[kind];
-        apply(el);
+        const stop = apply(el);
+        if (stop) this.#filterStops.set(kind, stop);
         document.body.appendChild(el);
         if (data.duration > 0) this.#schedule(`filter:${kind}`, () => this.#removeFilter(kind), data.duration * 1000);
     }
 
     #removeFilter(kind) {
         this.#cancel(`filter:${kind}`);
+        this.#filterStops.get(kind)?.();
+        this.#filterStops.delete(kind);
         document.getElementById(`canvas-fx-filter-${kind}`)?.remove();
+    }
+
+    /**
+     * Animates film grain, scratches and flicker inside `el` at 24 fps, film cadence.
+     * The noise is four tiles generated once and swapped with a random offset each tick, so no
+     * pixel work happens per frame; full-screen ImageData noise every frame would cost about half
+     * a million random pixels at 1080p for the same look, and animating an SVG feTurbulence seed
+     * re-rasterises the whole screen each frame.
+     * @returns {Function} stops the loop and frees the tiles
+     */
+    #startGrain(el, { intensity, scratches, flicker }) {
+        el.classList.add("cfx-grain");
+        const urls = [];
+        let stopped = false;
+        let timer = null;
+        const alpha = Math.round(Math.min(Math.max(intensity, 0), 1) * 255);
+        for (let t = 0; t < 4; t++) {
+            const tile = document.createElement("canvas");
+            tile.width = tile.height = 256;
+            const tileCtx = tile.getContext("2d");
+            const img = tileCtx.createImageData(256, 256);
+            for (let i = 0; i < img.data.length; i += 4) {
+                const v = Math.random() * 255;
+                img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+                img.data[i + 3] = alpha;
+            }
+            tileCtx.putImageData(img, 0, 0);
+            tile.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                if (stopped) URL.revokeObjectURL(url);
+                else urls.push(url);
+            });
+        }
+
+        let ctx = null;
+        const lines = [];
+        if (scratches) {
+            const canvas = document.createElement("canvas");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            el.appendChild(canvas);
+            ctx = canvas.getContext("2d");
+        }
+
+        const tick = () => {
+            if (urls.length) {
+                el.style.backgroundImage = `url(${urls[Math.floor(Math.random() * urls.length)]})`;
+                el.style.backgroundPosition = `${Math.floor(Math.random() * 256)}px ${Math.floor(Math.random() * 256)}px`;
+            }
+            if (flicker) el.style.opacity = 0.92 + (Math.random() - 0.5) * 0.16;
+            if (ctx) {
+                const { width: w, height: h } = ctx.canvas;
+                ctx.clearRect(0, 0, w, h);
+                if (lines.length < 2 && Math.random() < 0.08) {
+                    lines.push({ x: Math.random() * w, life: 3 + Math.floor(Math.random() * 8), alpha: 0.25 + Math.random() * 0.35 });
+                }
+                for (const line of lines) {
+                    line.x += (Math.random() - 0.5) * 3;
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${line.alpha})`;
+                    ctx.lineWidth = 1 + Math.random();
+                    ctx.beginPath();
+                    ctx.moveTo(line.x, 0);
+                    ctx.lineTo(line.x + (Math.random() - 0.5) * 6, h);
+                    ctx.stroke();
+                    line.life--;
+                }
+                for (let i = lines.length - 1; i >= 0; i--) if (lines[i].life <= 0) lines.splice(i, 1);
+                const specks = Math.floor(Math.random() * 5);
+                for (let i = 0; i < specks; i++) {
+                    ctx.fillStyle = Math.random() < 0.5 ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.5)";
+                    ctx.beginPath();
+                    ctx.arc(Math.random() * w, Math.random() * h, 0.5 + Math.random() * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            timer = setTimeout(tick, 42);
+        };
+        tick();
+
+        return () => {
+            stopped = true;
+            clearTimeout(timer);
+            for (const url of urls) URL.revokeObjectURL(url);
+            urls.length = 0;
+        };
     }
 
     handleSpin(d) {
