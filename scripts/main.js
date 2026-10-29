@@ -14,8 +14,6 @@ import { SciFiLevelUpEffect } from "./effects/scifi-levelup.js";
 
 const SOCKET_EVENT = `module.${MODULE_ID}`;
 
-console.log("CanvasFX | Initializing...");
-
 class CanvasFXManager {
     // Auto-hide timers keyed by layer. Restarting an effect on a layer replaces its
     // pending timer, and Clear() cancels all of them, so a stale timeout can never
@@ -92,8 +90,6 @@ class CanvasFXManager {
         this.countdownLayer = createLayer("canvas-fx-countdown");
         this.slideshowLayer = createLayer("canvas-fx-slideshow");
         this.levelupLayer = createLayer("canvas-fx-levelup");
-        
-        console.log("CanvasFX | Layers Ready");
     }
 
     /* --- UI: BUILDER & DEMO --- */
@@ -301,8 +297,6 @@ class CanvasFXManager {
         document.body.style.transition = "";
         document.body.style.animation = "";
         this.globalRotation = 0;
-
-        console.log("CanvasFX | Cleared all effects.");
     }
     
     // --- SLIDESHOW ---
