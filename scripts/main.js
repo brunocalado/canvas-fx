@@ -676,7 +676,8 @@ class CanvasFXManager {
     handleVignette(d) {
         this._resetFilters();
         this.filterLayer.style.display = "block";
-        this.filterLayer.style.background = `radial-gradient(circle, transparent 50%, rgba(0,0,0,${d.intensity||0.8}) 100%)`;
+        const rgb = this.colorToRGB(d.color || "black");
+        this.filterLayer.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity || 0.8}) 100%)`;
         if(d.duration > 0) this.#schedule("filter", () => this._resetFilters(), d.duration * 1000);
     }
 

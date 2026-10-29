@@ -7,6 +7,7 @@
 - [Fixed] ScreenShake after a Spin shakes at full strength again instead of a faint drift.
 - [Fixed] Rain and RainImage called without a count spawn 20 particles, as documented, instead of nothing.
 - [Fixed] Countdown keeps start and end within 0–1000 as intended.
+- [Fixed] Vignette now uses its color option instead of always being black.
 
 # 1.0.9
 
