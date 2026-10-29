@@ -243,9 +243,6 @@
 .cfx-clear-btn { background: #8b2d2d; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
 .cfx-clear-btn:hover { background: #a93e3e; }
 
-/* --- BUILDER WINDOW --- */
-/* Moved to styles/builder.css — one stylesheet per ApplicationV2 class. */
-
 /* --- ELEMENTS --- */
 .cfx-text-box {
     font-size: 25vh; line-height: 1; font-weight: bold; text-align: center;

@@ -130,7 +130,6 @@ class CanvasFXManager {
     Vignette(options = {}) { this.emit("filter_vignette", options); }
     Blur(options = {}) { this.emit("filter_blur", options); }
     
-    // New Functions
     Countdown(options = {}) { 
         // Validation
         const start = Math.min(Math.max(options.start ?? 10, 0), 1000);
@@ -144,7 +143,8 @@ class CanvasFXManager {
 
     async Slideshow(path, options = {}) {
         // Resolve images on the initiator client (usually GM)
-        // Fixed: Use "data" source for User Data (where modules typically live)
+        // Browsed in the User Data source, where world and module files live;
+        // core's public icons/ folder is not reachable from here.
         try {
             const FilePickerClass = foundry.applications.apps.FilePicker.implementation
                 ?? foundry.applications.apps.FilePicker;
@@ -345,8 +345,7 @@ class CanvasFXManager {
         img1.src = images[0];
         
         if (images.length === 1) {
-             // Just one image, allow it to stay for interval then clear?
-             // Or just show it. Let's show it, then clear after interval.
+             // A single image stays for one interval, then the slideshow ends.
              this.slideshowInterval = setTimeout(() => {
                  this.#endSlideshow();
              }, interval);
