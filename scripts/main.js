@@ -17,6 +17,13 @@ const SOCKET_EVENT = `module.${MODULE_ID}`;
 console.log("CanvasFX | Initializing...");
 
 class CanvasFXManager {
+    // Auto-hide timers keyed by layer. Restarting an effect on a layer replaces its
+    // pending timer, and Clear() cancels all of them, so a stale timeout can never
+    // hide an effect that started after it.
+    #timers = new Map();
+    // Bumped by every Flash and by Clear(); a running Flash loop stops when its token is stale.
+    #flashRun = 0;
+
     constructor() {
         // DOM Layers for different effect types
         this.layer = null;          // Particles (Rain, Shatter)
@@ -48,6 +55,16 @@ class CanvasFXManager {
 
         // Active Sci-Fi Level Up instance (owns its own RAF loop and WebGL context)
         this.levelUpEffect = null;
+    }
+
+    #schedule(key, fn, ms) {
+        clearTimeout(this.#timers.get(key));
+        this.#timers.set(key, setTimeout(() => { this.#timers.delete(key); fn(); }, ms));
+    }
+
+    #cancel(key) {
+        clearTimeout(this.#timers.get(key));
+        this.#timers.delete(key);
     }
 
     /**
@@ -252,6 +269,9 @@ class CanvasFXManager {
         if (this.slideshowInterval) { clearInterval(this.slideshowInterval); this.slideshowInterval = null; }
         if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
         if (this.countdownTimeout) { clearTimeout(this.countdownTimeout); this.countdownTimeout = null; }
+        for (const id of this.#timers.values()) clearTimeout(id);
+        this.#timers.clear();
+        this.#flashRun++;
 
         this.particles = [];
         this.emitters = [];
@@ -516,7 +536,7 @@ class CanvasFXManager {
         const t = `transform ${duration}ms cubic-bezier(0.7, 0, 0.84, 0)`;
         left.style.transition = t; right.style.transition = t;
         setTimeout(() => { left.classList.add("open"); right.classList.add("open"); }, 100);
-        setTimeout(() => { this.curtainLayer.style.display = "none"; }, duration + 200);
+        this.#schedule("curtain", () => { this.curtainLayer.style.display = "none"; }, duration + 200);
     }
 
     handleLetterbox(data) {
@@ -537,6 +557,8 @@ class CanvasFXManager {
 
     handleText(data) {
         if (!this.textLayer) return;
+        // Cancel first, so a persistent Text also stops an older one's hide
+        this.#cancel("text");
         const content = data.content; const duration = (data.duration || 3) * 1000; const color = data.color || "white"; const bg = data.backgroundColor || "black"; const fontFamily = data.fontFamily || "Impact, sans-serif"; const fill = data.fill || "box"; 
         this.textLayer.innerHTML = ""; this.textLayer.style.display = "flex"; this.textLayer.style.opacity = "0";
         const textBox = document.createElement("div"); textBox.className = "cfx-text-box"; textBox.innerText = content; textBox.style.color = color; textBox.style.backgroundColor = bg; textBox.style.fontFamily = fontFamily;
@@ -549,17 +571,24 @@ class CanvasFXManager {
 
         this.textLayer.appendChild(textBox);
         requestAnimationFrame(() => { this.textLayer.style.opacity = "1"; });
-        if (duration > 0) { setTimeout(() => { this.textLayer.style.opacity = "0"; setTimeout(() => { this.textLayer.style.display = "none"; this.textLayer.innerHTML = ""; }, 500); }, duration); }
+        if (duration > 0) this.#schedule("text", () => {
+            this.textLayer.style.opacity = "0";
+            this.#schedule("text", () => { this.textLayer.style.display = "none"; this.textLayer.innerHTML = ""; }, 500);
+        }, duration);
     }
 
     handleCover(data) {
         if (!this.coverLayer) return;
+        this.#cancel("cover");
         const path = data.content; const duration = (data.duration || 5) * 1000; const opacity = data.opacity !== undefined ? data.opacity : 1.0; const isVideo = path.endsWith(".webm") || path.endsWith(".mp4");
         this.coverLayer.innerHTML = ""; this.coverLayer.style.opacity = "0"; this.coverLayer.style.display = "flex";
         let el; if (isVideo) { el = document.createElement("video"); el.src = path; el.autoplay = true; el.loop = true; el.muted = true; } else { el = document.createElement("img"); el.src = path; }
         el.style.opacity = opacity; this.coverLayer.appendChild(el);
         requestAnimationFrame(() => { this.coverLayer.style.opacity = "1"; });
-        if (duration > 0) { setTimeout(() => { this.coverLayer.style.opacity = "0"; setTimeout(() => { this.coverLayer.innerHTML = ""; this.coverLayer.style.display = "none"; }, 1000); }, duration); }
+        if (duration > 0) this.#schedule("cover", () => {
+            this.coverLayer.style.opacity = "0";
+            this.#schedule("cover", () => { this.coverLayer.innerHTML = ""; this.coverLayer.style.display = "none"; }, 1000);
+        }, duration);
     }
 
     handleBorder(options) {
@@ -589,6 +618,7 @@ class CanvasFXManager {
         const color = data.color || "white";
         const iterations = data.iterations || 1;
         const interval = data.interval || 100;
+        const run = ++this.#flashRun;
 
         const performFlash = async () => {
             this.flashLayer.style.display = "block"; 
@@ -602,15 +632,19 @@ class CanvasFXManager {
             this.flashLayer.style.opacity = "0";
 
             return new Promise(resolve => setTimeout(() => {
-                this.flashLayer.style.display = "none";
-                this.flashLayer.style.transition = "";
+                if (run === this.#flashRun) {
+                    this.flashLayer.style.display = "none";
+                    this.flashLayer.style.transition = "";
+                }
                 resolve();
             }, duration));
         };
 
         for (let i = 0; i < iterations; i++) {
+            if (run !== this.#flashRun) return;
             await performFlash();
             if (i < iterations - 1) {
+                if (run !== this.#flashRun) return;
                 await new Promise(r => setTimeout(r, interval));
             }
         }
@@ -624,7 +658,7 @@ class CanvasFXManager {
         this.filterLayer.style.backgroundColor = d.color || "red";
         this.filterLayer.style.opacity = d.opacity || 0.3;
         this.filterLayer.style.mixBlendMode = "multiply";
-        if(d.duration > 0) setTimeout(() => this._resetFilters(), d.duration * 1000);
+        if(d.duration > 0) this.#schedule("filter", () => this._resetFilters(), d.duration * 1000);
     }
     handleNightVision(d) { this.applyClassFilter("cfx-night-vision", d.duration); }
     handleBlackAndWhite(d) { this.applyClassFilter("cfx-bw", d.duration); }
@@ -632,7 +666,7 @@ class CanvasFXManager {
         this._resetFilters();
         this.filterLayer.style.display = "block";
         this.filterLayer.style.background = `radial-gradient(circle, transparent 50%, rgba(0,0,0,${d.intensity||0.8}) 100%)`;
-        if(d.duration > 0) setTimeout(() => this._resetFilters(), d.duration * 1000);
+        if(d.duration > 0) this.#schedule("filter", () => this._resetFilters(), d.duration * 1000);
     }
 
     applyFilter(prop, val, dur) {
@@ -642,16 +676,17 @@ class CanvasFXManager {
         this.filterLayer.style.webkitBackdropFilter = val;
         // Automatically remove filter after duration if specified
         const ms = dur > 0 ? dur * 1000 : 0;
-        if(ms > 0) setTimeout(() => this._resetFilters(), ms);
+        if(ms > 0) this.#schedule("filter", () => this._resetFilters(), ms);
     }
     applyClassFilter(cls, dur) {
         this._resetFilters();
         this.filterLayer.style.display = "block";
         this.filterLayer.classList.add(cls);
         const ms = dur > 0 ? dur * 1000 : 0;
-        if(ms > 0) setTimeout(() => this._resetFilters(), ms);
+        if(ms > 0) this.#schedule("filter", () => this._resetFilters(), ms);
     }
     _resetFilters() {
+        this.#cancel("filter");
         if(!this.filterLayer) return;
         this.filterLayer.style.display = "none"; this.filterLayer.className = ""; this.filterLayer.style.background = "";
         this.filterLayer.style.backgroundColor = ""; this.filterLayer.style.opacity = ""; this.filterLayer.style.mixBlendMode = "";

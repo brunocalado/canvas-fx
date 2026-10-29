@@ -1,6 +1,7 @@
 # Unreleased
 
 - [Changed] The macro reference is now `docs/API.md`, linked from the README.
+- [Fixed] A timed effect (Text, ScreenCover, Blur, Colorfy, NightVision, BlackAndWhite, Vignette, Curtain) no longer hides a newer effect on the same layer when its own time runs out, and Clear() now also stops a Flash in progress.
 
 # 1.0.9
 
