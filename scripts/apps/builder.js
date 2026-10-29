@@ -243,8 +243,7 @@ export class CanvasFXBuilderApp extends HandlebarsApplicationMixin(ApplicationV2
         const effect = this.selectedEffect;
         const { mainContent, params } = this.getParams(effect);
 
-        if (effect === "Countdown") this.manager.Countdown(params);
-        else if (CONTENT_FIRST_EFFECTS.includes(effect)) this.manager[effect](mainContent, params);
+        if (CONTENT_FIRST_EFFECTS.includes(effect)) this.manager[effect](mainContent, params);
         else if (this.manager[effect]) this.manager[effect](params);
     }
 

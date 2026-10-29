@@ -89,15 +89,22 @@ class CanvasFXManager {
      * Opens a window displaying the bundled demo macros.
      */
     Demo() {
-        const macros = [...DEMO_MACROS].sort((a, b) => a.name.localeCompare(b.name));
-        new CanvasFXDemoApp(this, macros).render(true);
+        // Reuse the open window instead of orphaning it under a second instance
+        let app = foundry.applications.instances.get("canvas-fx-demo");
+        if (!app) {
+            const macros = [...DEMO_MACROS].sort((a, b) => a.name.localeCompare(b.name));
+            app = new CanvasFXDemoApp(this, macros);
+        }
+        app.render(true);
     }
 
     /**
      * Opens the Effect Builder interface.
      */
     Builder() {
-        new CanvasFXBuilderApp(this).render(true);
+        // Reuse the open window, so a second call keeps what was typed in it
+        const app = foundry.applications.instances.get("canvas-fx-builder") ?? new CanvasFXBuilderApp(this);
+        app.render(true);
     }
 
     /* --- PUBLIC SHORTCUTS --- */
@@ -126,12 +133,8 @@ class CanvasFXManager {
     // New Functions
     Countdown(options = {}) { 
         // Validation
-        let start = options.start !== undefined ? options.start : 10;
-        let end = options.end !== undefined ? options.end : 0;
-        if (start < 0) start = 0;
-        if (start > 1000) start = 1000;
-        if (end < 0) end = 0;
-        if (end > 1000) end = 1000;
+        const start = Math.min(Math.max(options.start ?? 10, 0), 1000);
+        const end = Math.min(Math.max(options.end ?? 0, 0), 1000);
         
         // The clamped values have to come last or the raw options overwrite them
         this.emit("countdown", { ...options, start, end });
@@ -170,7 +173,7 @@ class CanvasFXManager {
         return new Promise(resolve => setTimeout(resolve, seconds * 1000));
     }
 
-    Clear() { this.emit("clear", {}, false); }
+    Clear() { this.emit("clear", {}); }
 
     /* --- SOCKET HANDLING --- */
     
@@ -283,7 +286,7 @@ class CanvasFXManager {
         }
 
         // Empty and hide every layer. The particle layer is emptied but never hidden,
-        // since nothing shows it again; the filter layer is reset by _resetFilters().
+        // since nothing shows it again; the filter layer is reset by #resetFilters().
         for (const key of Object.keys(LAYERS)) {
             const el = this[key];
             if (!el || key === "filterLayer") continue;
@@ -298,7 +301,7 @@ class CanvasFXManager {
         if (this.flashLayer) this.flashLayer.style.transition = "";
 
         // Remove filters
-        this._resetFilters();
+        this.#resetFilters();
 
         // Reset transforms
         document.body.style.transform = "";
@@ -744,41 +747,41 @@ class CanvasFXManager {
 
     handleBlur(d) { this.applyFilter("blur", `blur(${d.intensity||5}px)`, d.duration); }
     handleColorfy(d) { 
-        this._resetFilters();
+        this.#resetFilters();
         if(!this.filterLayer) return;
         this.filterLayer.style.display = "block";
         this.filterLayer.style.backgroundColor = d.color || "red";
         this.filterLayer.style.opacity = d.opacity || 0.3;
         this.filterLayer.style.mixBlendMode = "multiply";
-        if(d.duration > 0) this.#schedule("filter", () => this._resetFilters(), d.duration * 1000);
+        if(d.duration > 0) this.#schedule("filter", () => this.#resetFilters(), d.duration * 1000);
     }
     handleNightVision(d) { this.applyClassFilter("cfx-night-vision", d.duration); }
     handleBlackAndWhite(d) { this.applyClassFilter("cfx-bw", d.duration); }
     handleVignette(d) {
-        this._resetFilters();
+        this.#resetFilters();
         this.filterLayer.style.display = "block";
         const rgb = this.colorToRGB(d.color || "black");
         this.filterLayer.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity || 0.8}) 100%)`;
-        if(d.duration > 0) this.#schedule("filter", () => this._resetFilters(), d.duration * 1000);
+        if(d.duration > 0) this.#schedule("filter", () => this.#resetFilters(), d.duration * 1000);
     }
 
     applyFilter(prop, val, dur) {
-        this._resetFilters();
+        this.#resetFilters();
         this.filterLayer.style.display = "block";
         this.filterLayer.style.backdropFilter = val;
         this.filterLayer.style.webkitBackdropFilter = val;
         // Automatically remove filter after duration if specified
         const ms = dur > 0 ? dur * 1000 : 0;
-        if(ms > 0) this.#schedule("filter", () => this._resetFilters(), ms);
+        if(ms > 0) this.#schedule("filter", () => this.#resetFilters(), ms);
     }
     applyClassFilter(cls, dur) {
-        this._resetFilters();
+        this.#resetFilters();
         this.filterLayer.style.display = "block";
         this.filterLayer.classList.add(cls);
         const ms = dur > 0 ? dur * 1000 : 0;
-        if(ms > 0) this.#schedule("filter", () => this._resetFilters(), ms);
+        if(ms > 0) this.#schedule("filter", () => this.#resetFilters(), ms);
     }
-    _resetFilters() {
+    #resetFilters() {
         this.#cancel("filter");
         if(!this.filterLayer) return;
         this.filterLayer.style.display = "none";
@@ -904,11 +907,12 @@ class CanvasFXManager {
         if (!this.running) { 
             this.running = true; 
             this.lastTime = performance.now(); 
-            requestAnimationFrame(this._animate.bind(this)); 
+            requestAnimationFrame(this.#animate); 
         } 
     }
 
-    _animate(t) {
+    // An arrow field, so the animation callback is bound once rather than on every frame
+    #animate = (t) => {
         if (!this.running) return;
         const dt = (t - this.lastTime) / 1000;
         this.lastTime = t;
@@ -941,9 +945,9 @@ class CanvasFXManager {
             return !outside;
         });
 
-        if (this.particles.length > 0 || this.emitters.length > 0) requestAnimationFrame(this._animate.bind(this));
+        if (this.particles.length > 0 || this.emitters.length > 0) requestAnimationFrame(this.#animate);
         else this.running = false;
-    }
+    };
 }
 
 const canvasFX = new CanvasFXManager();
