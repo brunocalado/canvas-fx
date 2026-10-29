@@ -137,8 +137,10 @@ class CanvasFXManager {
         // Validation
         let start = options.start !== undefined ? options.start : 10;
         let end = options.end !== undefined ? options.end : 0;
-        if (start < 0) start = 0; if (start > 1000) start = 1000;
-        if (end < 0) end = 0; if (end > 1000) end = 1000;
+        if (start < 0) start = 0;
+        if (start > 1000) start = 1000;
+        if (end < 0) end = 0;
+        if (end > 1000) end = 1000;
         
         // The clamped values have to come last or the raw options overwrite them
         this.emit("countdown", { ...options, start, end });
@@ -264,9 +266,18 @@ class CanvasFXManager {
         
         // Clear intervals/timeouts
         if (this.shakeInterval) clearInterval(this.shakeInterval);
-        if (this.slideshowInterval) { clearInterval(this.slideshowInterval); this.slideshowInterval = null; }
-        if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
-        if (this.countdownTimeout) { clearTimeout(this.countdownTimeout); this.countdownTimeout = null; }
+        if (this.slideshowInterval) {
+            clearInterval(this.slideshowInterval);
+            this.slideshowInterval = null;
+        }
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
+            this.countdownInterval = null;
+        }
+        if (this.countdownTimeout) {
+            clearTimeout(this.countdownTimeout);
+            this.countdownTimeout = null;
+        }
         for (const id of this.#timers.values()) clearTimeout(id);
         this.#timers.clear();
         this.#flashRun++;
@@ -275,20 +286,52 @@ class CanvasFXManager {
         this.emitters = [];
 
         // Stop the Sci-Fi Level Up effect (frees its WebGL context)
-        if (this.levelUpEffect) { this.levelUpEffect.dispose(); this.levelUpEffect = null; }
+        if (this.levelUpEffect) {
+            this.levelUpEffect.dispose();
+            this.levelUpEffect = null;
+        }
 
         // Clear and hide all layers
         if (this.layer) this.layer.innerHTML = "";
-        if (this.borderLayer) { this.borderLayer.classList.remove("active"); this.borderLayer.style.display = "none"; this.borderLayer.style.borderWidth = ""; }
-        if (this.coverLayer) { this.coverLayer.innerHTML = ""; this.coverLayer.style.display = "none"; this.coverLayer.style.opacity = 0; }
-        if (this.textLayer) { this.textLayer.innerHTML = ""; this.textLayer.style.display = "none"; }
-        if (this.flashLayer) { this.flashLayer.style.display = "none"; this.flashLayer.style.transition = ""; }
-        if (this.letterboxLayer) { this.letterboxLayer.innerHTML = ""; this.letterboxLayer.style.display = "none"; }
-        if (this.curtainLayer) { this.curtainLayer.innerHTML = ""; this.curtainLayer.style.display = "none"; }
-        if (this.countdownLayer) { this.countdownLayer.innerHTML = ""; this.countdownLayer.style.display = "none"; }
-        if (this.slideshowLayer) { this.slideshowLayer.innerHTML = ""; this.slideshowLayer.style.display = "none"; }
-        if (this.levelupLayer) { this.levelupLayer.innerHTML = ""; this.levelupLayer.style.display = "none"; }
-        
+        if (this.borderLayer) {
+            this.borderLayer.classList.remove("active");
+            this.borderLayer.style.display = "none";
+            this.borderLayer.style.borderWidth = "";
+        }
+        if (this.coverLayer) {
+            this.coverLayer.innerHTML = "";
+            this.coverLayer.style.display = "none";
+            this.coverLayer.style.opacity = 0;
+        }
+        if (this.textLayer) {
+            this.textLayer.innerHTML = "";
+            this.textLayer.style.display = "none";
+        }
+        if (this.flashLayer) {
+            this.flashLayer.style.display = "none";
+            this.flashLayer.style.transition = "";
+        }
+        if (this.letterboxLayer) {
+            this.letterboxLayer.innerHTML = "";
+            this.letterboxLayer.style.display = "none";
+        }
+        if (this.curtainLayer) {
+            this.curtainLayer.innerHTML = "";
+            this.curtainLayer.style.display = "none";
+        }
+        if (this.countdownLayer) {
+            this.countdownLayer.innerHTML = "";
+            this.countdownLayer.style.display = "none";
+        }
+        if (this.slideshowLayer) {
+            this.slideshowLayer.innerHTML = "";
+            this.slideshowLayer.style.display = "none";
+        }
+        if (this.levelupLayer) {
+            this.levelupLayer.innerHTML = "";
+            this.levelupLayer.style.display = "none";
+        }
+
         // Remove filters
         this._resetFilters();
 
@@ -360,13 +403,17 @@ class CanvasFXManager {
             
             if (activeBuffer === 1) {
                 img2.src = nextImage;
-                img2.classList.add("active"); img2.classList.remove("next");
-                img1.classList.remove("active"); img1.classList.add("next");
+                img2.classList.add("active");
+                img2.classList.remove("next");
+                img1.classList.remove("active");
+                img1.classList.add("next");
                 activeBuffer = 2;
             } else {
                 img1.src = nextImage;
-                img1.classList.add("active"); img1.classList.remove("next");
-                img2.classList.remove("active"); img2.classList.add("next");
+                img1.classList.add("active");
+                img1.classList.remove("next");
+                img2.classList.remove("active");
+                img2.classList.add("next");
                 activeBuffer = 1;
             }
         };
@@ -387,7 +434,10 @@ class CanvasFXManager {
         if (!this.levelupLayer) return;
 
         // Replace any run already in progress
-        if (this.levelUpEffect) { this.levelUpEffect.dispose(); this.levelUpEffect = null; }
+        if (this.levelUpEffect) {
+            this.levelUpEffect.dispose();
+            this.levelUpEffect = null;
+        }
         this.levelupLayer.innerHTML = "";
         this.levelupLayer.style.display = "block";
 
@@ -425,8 +475,14 @@ class CanvasFXManager {
         this.countdownLayer.style.display = "flex";
         
         // Clear old intervals
-        if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
-        if (this.countdownTimeout) { clearTimeout(this.countdownTimeout); this.countdownTimeout = null; }
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
+            this.countdownInterval = null;
+        }
+        if (this.countdownTimeout) {
+            clearTimeout(this.countdownTimeout);
+            this.countdownTimeout = null;
+        }
         
         const span = document.createElement("span");
         span.style.color = color;
@@ -531,16 +587,27 @@ class CanvasFXManager {
 
     handleCurtain(data) {
         if (!this.curtainLayer) return;
-        this.curtainLayer.innerHTML = ""; this.curtainLayer.style.display = "block";
+        this.curtainLayer.innerHTML = "";
+        this.curtainLayer.style.display = "block";
         const duration = (data.duration || 2000);
-        const left = document.createElement("div"); left.className = "cfx-curtain-panel left";
-        const right = document.createElement("div"); right.className = "cfx-curtain-panel right";
-        if (data.image) { left.style.backgroundImage = `url(${data.image})`; right.style.backgroundImage = `url(${data.image})`; }
-        this.curtainLayer.appendChild(left); this.curtainLayer.appendChild(right);
+        const left = document.createElement("div");
+        left.className = "cfx-curtain-panel left";
+        const right = document.createElement("div");
+        right.className = "cfx-curtain-panel right";
+        if (data.image) {
+            left.style.backgroundImage = `url(${data.image})`;
+            right.style.backgroundImage = `url(${data.image})`;
+        }
+        this.curtainLayer.appendChild(left);
+        this.curtainLayer.appendChild(right);
         void this.curtainLayer.offsetWidth;
         const t = `transform ${duration}ms cubic-bezier(0.7, 0, 0.84, 0)`;
-        left.style.transition = t; right.style.transition = t;
-        setTimeout(() => { left.classList.add("open"); right.classList.add("open"); }, 100);
+        left.style.transition = t;
+        right.style.transition = t;
+        setTimeout(() => {
+            left.classList.add("open");
+            right.classList.add("open");
+        }, 100);
         this.#schedule("curtain", () => { this.curtainLayer.style.display = "none"; }, duration + 200);
     }
 
@@ -549,14 +616,22 @@ class CanvasFXManager {
         const isCurrentlyActive = this.letterboxLayer.style.display === "block";
         const target = data.active !== undefined ? data.active : !isCurrentlyActive;
         if (target) {
-            this.letterboxLayer.innerHTML = ""; this.letterboxLayer.style.display = "block";
+            this.letterboxLayer.innerHTML = "";
+            this.letterboxLayer.style.display = "block";
             const height = data.height || "12vh";
-            const top = document.createElement("div"); top.className = "cfx-bar top";
-            const bottom = document.createElement("div"); bottom.className = "cfx-bar bottom";
-            this.letterboxLayer.appendChild(top); this.letterboxLayer.appendChild(bottom);
-            setTimeout(() => { top.style.height = height; bottom.style.height = height; }, 50);
+            const top = document.createElement("div");
+            top.className = "cfx-bar top";
+            const bottom = document.createElement("div");
+            bottom.className = "cfx-bar bottom";
+            this.letterboxLayer.appendChild(top);
+            this.letterboxLayer.appendChild(bottom);
+            setTimeout(() => {
+                top.style.height = height;
+                bottom.style.height = height;
+            }, 50);
         } else {
-            this.letterboxLayer.innerHTML = ""; this.letterboxLayer.style.display = "none";
+            this.letterboxLayer.innerHTML = "";
+            this.letterboxLayer.style.display = "none";
         }
     }
 
@@ -564,11 +639,36 @@ class CanvasFXManager {
         if (!this.textLayer) return;
         // Cancel first, so a persistent Text also stops an older one's hide
         this.#cancel("text");
-        const content = data.content; const duration = (data.duration ?? 3) * 1000; const color = data.color || "white"; const bg = data.backgroundColor || "black"; const fontFamily = data.fontFamily || "Impact, sans-serif"; const fill = data.fill || "box"; 
-        this.textLayer.innerHTML = ""; this.textLayer.style.display = "flex"; this.textLayer.style.opacity = "0";
-        const textBox = document.createElement("div"); textBox.className = "cfx-text-box"; textBox.innerText = content; textBox.style.color = color; textBox.style.backgroundColor = bg; textBox.style.fontFamily = fontFamily;
-        if (fill === "band") { textBox.style.width = "100%"; textBox.style.borderRadius = "0"; textBox.style.left = "0"; } else if (fill === "full") { textBox.style.width = "100vw"; textBox.style.height = "100vh"; textBox.style.borderRadius = "0"; textBox.style.left = "0"; textBox.style.top = "0"; textBox.style.display = "flex"; textBox.style.justifyContent = "center"; textBox.style.alignItems = "center"; }
-        
+        const content = data.content;
+        const duration = (data.duration ?? 3) * 1000;
+        const color = data.color || "white";
+        const bg = data.backgroundColor || "black";
+        const fontFamily = data.fontFamily || "Impact, sans-serif";
+        const fill = data.fill || "box";
+        this.textLayer.innerHTML = "";
+        this.textLayer.style.display = "flex";
+        this.textLayer.style.opacity = "0";
+        const textBox = document.createElement("div");
+        textBox.className = "cfx-text-box";
+        textBox.innerText = content;
+        textBox.style.color = color;
+        textBox.style.backgroundColor = bg;
+        textBox.style.fontFamily = fontFamily;
+        if (fill === "band") {
+            textBox.style.width = "100%";
+            textBox.style.borderRadius = "0";
+            textBox.style.left = "0";
+        } else if (fill === "full") {
+            textBox.style.width = "100vw";
+            textBox.style.height = "100vh";
+            textBox.style.borderRadius = "0";
+            textBox.style.left = "0";
+            textBox.style.top = "0";
+            textBox.style.display = "flex";
+            textBox.style.justifyContent = "center";
+            textBox.style.alignItems = "center";
+        }
+
         // Animations
         const anim = data.animation || "none";
         if (anim === "pulse") textBox.classList.add("cfx-anim-pulse");
@@ -578,21 +678,43 @@ class CanvasFXManager {
         requestAnimationFrame(() => { this.textLayer.style.opacity = "1"; });
         if (duration > 0) this.#schedule("text", () => {
             this.textLayer.style.opacity = "0";
-            this.#schedule("text", () => { this.textLayer.style.display = "none"; this.textLayer.innerHTML = ""; }, 500);
+            this.#schedule("text", () => {
+                this.textLayer.style.display = "none";
+                this.textLayer.innerHTML = "";
+            }, 500);
         }, duration);
     }
 
     handleCover(data) {
         if (!this.coverLayer) return;
         this.#cancel("cover");
-        const path = data.content; const duration = (data.duration ?? 5) * 1000; const opacity = data.opacity !== undefined ? data.opacity : 1.0; const isVideo = path.endsWith(".webm") || path.endsWith(".mp4");
-        this.coverLayer.innerHTML = ""; this.coverLayer.style.opacity = "0"; this.coverLayer.style.display = "flex";
-        let el; if (isVideo) { el = document.createElement("video"); el.src = path; el.autoplay = true; el.loop = true; el.muted = true; } else { el = document.createElement("img"); el.src = path; }
-        el.style.opacity = opacity; this.coverLayer.appendChild(el);
+        const path = data.content;
+        const duration = (data.duration ?? 5) * 1000;
+        const opacity = data.opacity !== undefined ? data.opacity : 1.0;
+        const isVideo = path.endsWith(".webm") || path.endsWith(".mp4");
+        this.coverLayer.innerHTML = "";
+        this.coverLayer.style.opacity = "0";
+        this.coverLayer.style.display = "flex";
+        let el;
+        if (isVideo) {
+            el = document.createElement("video");
+            el.src = path;
+            el.autoplay = true;
+            el.loop = true;
+            el.muted = true;
+        } else {
+            el = document.createElement("img");
+            el.src = path;
+        }
+        el.style.opacity = opacity;
+        this.coverLayer.appendChild(el);
         requestAnimationFrame(() => { this.coverLayer.style.opacity = "1"; });
         if (duration > 0) this.#schedule("cover", () => {
             this.coverLayer.style.opacity = "0";
-            this.#schedule("cover", () => { this.coverLayer.innerHTML = ""; this.coverLayer.style.display = "none"; }, 1000);
+            this.#schedule("cover", () => {
+                this.coverLayer.innerHTML = "";
+                this.coverLayer.style.display = "none";
+            }, 1000);
         }, duration);
     }
 
@@ -694,14 +816,21 @@ class CanvasFXManager {
     _resetFilters() {
         this.#cancel("filter");
         if(!this.filterLayer) return;
-        this.filterLayer.style.display = "none"; this.filterLayer.className = ""; this.filterLayer.style.background = "";
-        this.filterLayer.style.backgroundColor = ""; this.filterLayer.style.opacity = ""; this.filterLayer.style.mixBlendMode = "";
-        this.filterLayer.style.backdropFilter = ""; this.filterLayer.style.webkitBackdropFilter = "";
+        this.filterLayer.style.display = "none";
+        this.filterLayer.className = "";
+        this.filterLayer.style.background = "";
+        this.filterLayer.style.backgroundColor = "";
+        this.filterLayer.style.opacity = "";
+        this.filterLayer.style.mixBlendMode = "";
+        this.filterLayer.style.backdropFilter = "";
+        this.filterLayer.style.webkitBackdropFilter = "";
     }
 
     handleSpin(d) {
-        const angle = d.angle || 360; const dir = d.direction || "clockwise";
-        if (dir === "clockwise") this.globalRotation += angle; else this.globalRotation -= angle;
+        const angle = d.angle || 360;
+        const dir = d.direction || "clockwise";
+        if (dir === "clockwise") this.globalRotation += angle;
+        else this.globalRotation -= angle;
         const ms = d.duration || 2000;
         document.body.style.transition = `transform ${ms}ms cubic-bezier(0.25, 1, 0.5, 1)`;
         document.body.style.transform = `rotate(${this.globalRotation}deg)`;
@@ -710,7 +839,8 @@ class CanvasFXManager {
         this.#schedule("spin", () => { document.body.style.transition = ""; }, ms);
     }
     handlePulsate(d) {
-        document.body.style.animation = 'none'; void document.body.offsetHeight;
+        document.body.style.animation = 'none';
+        void document.body.offsetHeight;
         document.body.style.setProperty('--cfx-pulse-scale', 1 + (0.02 * (d.intensity || 2)));
         document.body.style.animation = `cfx-pulse-anim ${d.duration || 1000}ms ease-in-out ${d.iterations || 5}`;
     }
@@ -721,7 +851,11 @@ class CanvasFXManager {
         const dur = d.duration || 500;
         const dir = d.direction || "both";
         this.shakeInterval = setInterval(() => {
-            if (Date.now() - start >= dur) { clearInterval(this.shakeInterval); document.body.style.transform = `rotate(${this.globalRotation}deg)`; return; }
+            if (Date.now() - start >= dur) {
+                clearInterval(this.shakeInterval);
+                document.body.style.transform = `rotate(${this.globalRotation}deg)`;
+                return;
+            }
             const x = dir === "vertical" ? 0 : (Math.random() - 0.5) * mag * 2;
             const y = dir === "horizontal" ? 0 : (Math.random() - 0.5) * mag * 2;
             document.body.style.transform = `translate(${x}px, ${y}px) rotate(${this.globalRotation}deg)`;
@@ -744,29 +878,60 @@ class CanvasFXManager {
     }
     
     spawnBatch(d, n) {
-        const w = window.innerWidth; const h = window.innerHeight;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
         // Calculate particle size
         const baseSize = d.type === "image" ? 64 : 32;
         const scale = d.scale || 1;
         const size = baseSize * scale;
 
         for(let i=0; i<n; i++) {
-            const el = document.createElement("div"); el.classList.add("cfx-particle");
-            el.style.width = `${size}px`; el.style.height = `${size}px`; el.style.fontSize = `${size}px`;
-            if (d.type === "image") { const img = document.createElement("img"); img.src = d.content; el.appendChild(img); } else el.innerText = d.content;
-            
+            const el = document.createElement("div");
+            el.classList.add("cfx-particle");
+            el.style.width = `${size}px`;
+            el.style.height = `${size}px`;
+            el.style.fontSize = `${size}px`;
+            if (d.type === "image") {
+                const img = document.createElement("img");
+                img.src = d.content;
+                el.appendChild(img);
+            } else {
+                el.innerText = d.content;
+            }
+
             let x, y, vx, vy;
             const s = (d.speed || 300) * (1 + Math.random() * 0.5);
             const dir = d.direction || "top-bottom";
             
             // Determine start position and velocity based on direction
-            if (dir === "bottom-top") { x = Math.random() * w; y = h + 100; vx = 0; vy = -s; }
-            else if (dir === "left-right") { x = -100; y = Math.random() * h; vx = s; vy = 0; }
-            else if (dir === "right-left") { x = w + 100; y = Math.random() * h; vx = -s; vy = 0; }
-            else { x = Math.random() * w; y = -100; vx = 0; vy = s; } 
+            if (dir === "bottom-top") {
+                x = Math.random() * w;
+                y = h + 100;
+                vx = 0;
+                vy = -s;
+            } else if (dir === "left-right") {
+                x = -100;
+                y = Math.random() * h;
+                vx = s;
+                vy = 0;
+            } else if (dir === "right-left") {
+                x = w + 100;
+                y = Math.random() * h;
+                vx = -s;
+                vy = 0;
+            } else {
+                x = Math.random() * w;
+                y = -100;
+                vx = 0;
+                vy = s;
+            }
 
             this.layer.appendChild(el);
-            this.particles.push({ element: el, x, y, vx, vy, rotation: Math.random()*360, rotationSpeed: (Math.random()-0.5)*100 });
+            this.particles.push({
+                element: el, x, y, vx, vy,
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * 100
+            });
         }
     }
 
@@ -780,22 +945,29 @@ class CanvasFXManager {
 
     _animate(t) {
         if (!this.running) return;
-        const dt = (t - this.lastTime) / 1000; this.lastTime = t;
-        const h = window.innerHeight; const w = window.innerWidth;
+        const dt = (t - this.lastTime) / 1000;
+        this.lastTime = t;
+        const h = window.innerHeight;
+        const w = window.innerWidth;
         
         // Update emitters
         this.emitters = this.emitters.filter(e => {
             e.elapsed += dt;
             const prog = Math.min(e.elapsed / e.duration, 1);
             const target = Math.floor(prog * e.totalParticles);
-            if (target > e.spawned) { this.spawnBatch(e.data, target - e.spawned); e.spawned = target; }
+            if (target > e.spawned) {
+                this.spawnBatch(e.data, target - e.spawned);
+                e.spawned = target;
+            }
             return e.elapsed < e.duration;
         });
 
         // Update particles
         this.particles = this.particles.filter(p => {
             if (p.gravity) p.vy += p.gravity * dt;
-            p.x += p.vx * dt; p.y += p.vy * dt; p.rotation += p.rotationSpeed * dt;
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.rotation += p.rotationSpeed * dt;
             p.element.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rotation}deg)`;
             
             // Check bounds to remove particle
@@ -810,5 +982,11 @@ class CanvasFXManager {
 }
 
 const canvasFX = new CanvasFXManager();
-Hooks.once('init', () => { window.CanvasFX = canvasFX; console.log("CanvasFX | Initialized"); });
-Hooks.once('ready', () => { canvasFX.initialize(); if (game.socket) game.socket.on(SOCKET_EVENT, (p) => canvasFX.executeLocal(p.action, p.payload)); });
+Hooks.once('init', () => {
+    window.CanvasFX = canvasFX;
+    console.log("CanvasFX | Initialized");
+});
+Hooks.once('ready', () => {
+    canvasFX.initialize();
+    if (game.socket) game.socket.on(SOCKET_EVENT, (p) => canvasFX.executeLocal(p.action, p.payload));
+});
