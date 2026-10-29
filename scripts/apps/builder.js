@@ -22,7 +22,7 @@ const EFFECTS = {
         { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
     ],
     "Blur": [
-        { name: "intensity", type: "number", label: "Px Radius", default: 1 },
+        { name: "intensity", type: "number", label: "Px Radius", default: 5 },
         { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
     ],
     "Colorfy": [
@@ -44,11 +44,11 @@ const EFFECTS = {
         { name: "color", type: "color", label: "Color", default: "#ffffff" },
         { name: "duration", type: "number", label: "Duration (ms)", default: 1000 },
         { name: "iterations", type: "number", label: "Iterations", default: 1 },
-        { name: "interval", type: "number", label: "Interval (ms)", default: 200 },
+        { name: "interval", type: "number", label: "Interval (ms)", default: 100 },
         { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: "" }
     ],
     "GlassShatter": [
-        { name: "count", type: "number", label: "Shards", default: 200 },
+        { name: "count", type: "number", label: "Shards", default: 50 },
         { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: "" }
     ],
     "Letterbox": [
@@ -65,25 +65,25 @@ const EFFECTS = {
     ],
     "Rain": [
         { name: "content", type: "text", label: "Emoji/Text", default: "🔥" },
-        { name: "count", type: "number", label: "Count (Burst)", default: 80 },
+        { name: "count", type: "number", label: "Count (Burst)", default: 20 },
         { name: "speed", type: "number", label: "Speed", default: 300 },
         { name: "scale", type: "number", label: "Scale", default: 1 },
-        { name: "time", type: "number", label: "Duration (Emit)", default: 3 },
+        { name: "time", type: "number", label: "Emit Time (sec, 0 = burst)", default: 0 },
         { name: "direction", type: "select", label: "Direction", options: ["top-bottom", "bottom-top", "left-right", "right-left"], default: "top-bottom" }
     ],
     "RainImage": [
         { name: "content", type: "text", label: "Image Path", picker: "image", default: "" },
-        { name: "count", type: "number", label: "Count (Burst)", default: 80 },
+        { name: "count", type: "number", label: "Count (Burst)", default: 20 },
         { name: "speed", type: "number", label: "Speed", default: 300 },
         { name: "scale", type: "number", label: "Scale", default: 1 },
-        { name: "time", type: "number", label: "Duration (Emit)", default: 3 },
+        { name: "time", type: "number", label: "Emit Time (sec, 0 = burst)", default: 0 },
         { name: "direction", type: "select", label: "Direction", options: ["top-bottom", "bottom-top", "left-right", "right-left"], default: "top-bottom" }
     ],
     "SciFiLevelUp": [
         { name: "text", type: "text", label: "Text", default: "Level Up" },
         { name: "background", type: "select", label: "Background", options: ["transparent", "solid"], default: "solid" },
         { name: "backgroundColor", type: "color", label: "Background Color", default: "#000000" },
-        { name: "duration", type: "number", label: "Duration (sec, min 7)", default: 7 },
+        { name: "duration", type: "number", label: "Duration (sec, 0 = auto, min 7)", default: 0 },
         { name: "audio", type: "text", label: "Audio URL (blank = silent)", picker: "audio", default: "" }
     ],
     "ScreenBorder": [
@@ -99,7 +99,8 @@ const EFFECTS = {
     ],
     "ScreenShake": [
         { name: "intensity", type: "select", label: "Intensity", options: ["mild", "heavy", "extreme"], default: "heavy" },
-        { name: "duration", type: "number", label: "Duration (ms)", default: 500 }
+        { name: "duration", type: "number", label: "Duration (ms)", default: 500 },
+        { name: "direction", type: "select", label: "Direction", options: ["both", "horizontal", "vertical"], default: "both" }
     ],
     "Slideshow": [
         { name: "content", type: "text", label: "Folder Path", picker: "folder", default: "" },
@@ -113,12 +114,12 @@ const EFFECTS = {
     ],
     "Text": [
         { name: "content", type: "text", label: "Message", default: "VICTORY" },
-        { name: "color", type: "text", label: "Color", default: "gold" },
+        { name: "color", type: "text", label: "Color", default: "white" },
         { name: "backgroundColor", type: "color", label: "Background", default: "#000000" },
-        { name: "fill", type: "select", label: "Fill Mode", options: ["box", "band", "full"], default: "full" },
+        { name: "fill", type: "select", label: "Fill Mode", options: ["box", "band", "full"], default: "box" },
         { name: "fontFamily", type: "text", label: "Font Family", default: "Impact, sans-serif" },
         { name: "animation", type: "select", label: "Animation", options: ["none", "pulse", "shake"], default: "none" },
-        { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
+        { name: "duration", type: "number", label: "Duration (sec)", default: 3 }
     ],
     "Vignette": [
         { name: "intensity", type: "number", label: "Intensity", default: 0.8 },
