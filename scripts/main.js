@@ -734,15 +734,16 @@ class CanvasFXManager {
     // --- PARTICLE LOOP HANDLING ---
 
     handleSpawn(d) {
-        if (d.time > 0) { 
+        // An omitted count still has to spawn something; 20 is the documented default.
+        const count = d.count ?? 20;
+        if (d.time > 0) {
             // Emitter mode
-            this.emitters.push({ data: d, totalParticles: d.count, duration: d.time, elapsed: 0, spawned: 0 }); 
-            this.startLoop(); 
-        } else { 
+            this.emitters.push({ data: d, totalParticles: count, duration: d.time, elapsed: 0, spawned: 0 });
+        } else {
             // Burst mode
-            this.spawnBatch(d, d.count); 
-            this.startLoop(); 
+            this.spawnBatch(d, count);
         }
+        this.startLoop();
     }
     
     spawnBatch(d, n) {
