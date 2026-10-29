@@ -128,6 +128,11 @@ export const DEMO_MACROS = [
         })
     },
     {
+        name: "Sepia",
+        img: DEMO_ICON,
+        run: () => CanvasFX.Sepia({ duration: 5 })
+    },
+    {
         name: "Text (Giant Overlay, Alt Style)",
         img: DEMO_ICON,
         run: () => CanvasFX.Text("VICTORY", {

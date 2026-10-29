@@ -102,6 +102,10 @@ const EFFECTS = {
         { name: "duration", type: "number", label: "Duration (ms)", default: 500 },
         { name: "direction", type: "select", label: "Direction", options: ["both", "horizontal", "vertical"], default: "both" }
     ],
+    "Sepia": [
+        { name: "intensity", type: "number", label: "Intensity", default: 1 },
+        { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
+    ],
     "Slideshow": [
         { name: "content", type: "text", label: "Folder Path", picker: "folder", default: "" },
         { name: "interval", type: "number", label: "Slide Time (sec)", default: 3 },
@@ -149,6 +153,7 @@ const EFFECT_DESCRIPTIONS = {
     ScreenBorder: "Toggles a pulsing colored border around the screen (e.g. a low health alert).",
     ScreenCover: "Displays a full-screen image or video.",
     ScreenShake: "Shakes the screen to simulate an impact.",
+    Sepia: "Tints the screen in old-photo sepia.",
     Slideshow: "Displays a sequence of images from a folder with crossfade transitions.",
     Spin: "Rotates the entire game view.",
     Text: "Displays a massive text message overlay.",

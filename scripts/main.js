@@ -31,9 +31,11 @@ const LAYERS = {
 
 // Each filter kind is its own <body> child, painted by this z-index. Inside one shared fixed
 // container a kind's mix-blend-mode would blend only with the other kinds, not with the page.
+// One element with a combined backdrop-filter list would not do either: Colorfy, Night Vision
+// and Vignette are painted overlays, not filter functions.
 // Backdrop filters sit lowest so the painted overlays above them are not blurred or greyed;
 // the vignette frames the colour kinds.
-const FILTER_Z = { blur: 120001, bw: 120002, colorfy: 120004, night: 120005, vignette: 120006 };
+const FILTER_Z = { blur: 120001, bw: 120002, sepia: 120003, colorfy: 120004, night: 120005, vignette: 120006 };
 
 class CanvasFXManager {
     // Auto-hide timers keyed by layer. Restarting an effect on a layer replaces its
@@ -134,6 +136,7 @@ class CanvasFXManager {
     BlackAndWhite(options = {}) { this.emit("filter_bw", options); }
     Vignette(options = {}) { this.emit("filter_vignette", options); }
     Blur(options = {}) { this.emit("filter_blur", options); }
+    Sepia(options = {}) { this.emit("filter_sepia", options); }
     
     Countdown(options = {}) { 
         // Validation
@@ -227,6 +230,7 @@ class CanvasFXManager {
                 case "filter_bw": this.handleBlackAndWhite(data); break;
                 case "filter_vignette": this.handleVignette(data); break;
                 case "filter_blur": this.handleBlur(data); break;
+                case "filter_sepia": this.handleSepia(data); break;
                 case "countdown": this.handleCountdown(data); break;
                 case "slideshow": this.handleSlideshow(data); break;
                 case "scifi_levelup": this.handleSciFiLevelUp(data); break;
@@ -731,6 +735,7 @@ class CanvasFXManager {
 
     handleBlur(d) { this.#setFilter("blur", d, el => { el.style.backdropFilter = `blur(${d.intensity || 5}px)`; }); }
     handleBlackAndWhite(d) { this.#setFilter("bw", d, el => el.classList.add("cfx-bw")); }
+    handleSepia(d) { this.#setFilter("sepia", d, el => { el.style.backdropFilter = `sepia(${d.intensity ?? 1})`; }); }
     handleNightVision(d) { this.#setFilter("night", d, el => el.classList.add("cfx-night-vision")); }
     handleColorfy(d) {
         this.#setFilter("colorfy", d, el => {
