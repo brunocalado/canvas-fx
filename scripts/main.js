@@ -14,6 +14,22 @@ import { SciFiLevelUpEffect } from "./effects/scifi-levelup.js";
 
 const SOCKET_EVENT = `module.${MODULE_ID}`;
 
+// Every full-screen layer the manager owns: field name → element id. Fields keep
+// their names, so handlers address them as before.
+const LAYERS = {
+    layer: "canvas-fx-layer",            // particles (Rain, Shatter)
+    borderLayer: "canvas-fx-border",
+    coverLayer: "canvas-fx-cover",
+    textLayer: "canvas-fx-text",
+    filterLayer: "canvas-fx-filter",
+    flashLayer: "canvas-fx-flash",
+    letterboxLayer: "canvas-fx-letterbox",
+    curtainLayer: "canvas-fx-curtain",
+    countdownLayer: "canvas-fx-countdown",
+    slideshowLayer: "canvas-fx-slideshow",
+    levelupLayer: "canvas-fx-levelup"
+};
+
 class CanvasFXManager {
     // Auto-hide timers keyed by layer. Restarting an effect on a layer replaces its
     // pending timer, and Clear() cancels all of them, so a stale timeout can never
@@ -23,20 +39,8 @@ class CanvasFXManager {
     #flashRun = 0;
 
     constructor() {
-        // DOM Layers for different effect types
-        this.layer = null;          // Particles (Rain, Shatter)
-        this.borderLayer = null;    // Screen Border
-        this.coverLayer = null;     // Full screen images/video
-        this.textLayer = null;      // Big Text
-        this.filterLayer = null;    // CSS Filters (Blur, BW, etc)
-        this.flashLayer = null;     // White flash overlay
-        this.letterboxLayer = null; // Cinematic bars
-        this.curtainLayer = null;   // Theater curtains
-        
-        // New Layers
-        this.countdownLayer = null; // Countdown numbers
-        this.slideshowLayer = null; // Slideshow container
-        this.levelupLayer = null;   // Sci-Fi Level Up (Three.js)
+        // DOM layers, one field per LAYERS entry
+        for (const key of Object.keys(LAYERS)) this[key] = null;
 
         // Animation State
         this.shakeInterval = null; 
@@ -71,25 +75,12 @@ class CanvasFXManager {
     initialize() {
         if (document.getElementById("canvas-fx-layer")) return; 
 
-        const createLayer = (id) => {
-            let el = document.createElement("div");
+        for (const [key, id] of Object.entries(LAYERS)) {
+            const el = document.createElement("div");
             el.id = id;
             document.body.appendChild(el);
-            return el;
-        };
-
-        this.layer = createLayer("canvas-fx-layer");
-        this.borderLayer = createLayer("canvas-fx-border");
-        this.coverLayer = createLayer("canvas-fx-cover");
-        this.textLayer = createLayer("canvas-fx-text");
-        this.filterLayer = createLayer("canvas-fx-filter");
-        this.flashLayer = createLayer("canvas-fx-flash");
-        this.letterboxLayer = createLayer("canvas-fx-letterbox");
-        this.curtainLayer = createLayer("canvas-fx-curtain");
-        
-        this.countdownLayer = createLayer("canvas-fx-countdown");
-        this.slideshowLayer = createLayer("canvas-fx-slideshow");
-        this.levelupLayer = createLayer("canvas-fx-levelup");
+            this[key] = el;
+        }
     }
 
     /* --- UI: BUILDER & DEMO --- */
@@ -291,46 +282,20 @@ class CanvasFXManager {
             this.levelUpEffect = null;
         }
 
-        // Clear and hide all layers
-        if (this.layer) this.layer.innerHTML = "";
+        // Empty and hide every layer. The particle layer is emptied but never hidden,
+        // since nothing shows it again; the filter layer is reset by _resetFilters().
+        for (const key of Object.keys(LAYERS)) {
+            const el = this[key];
+            if (!el || key === "filterLayer") continue;
+            el.innerHTML = "";
+            if (key !== "layer") el.style.display = "none";
+        }
         if (this.borderLayer) {
             this.borderLayer.classList.remove("active");
-            this.borderLayer.style.display = "none";
             this.borderLayer.style.borderWidth = "";
         }
-        if (this.coverLayer) {
-            this.coverLayer.innerHTML = "";
-            this.coverLayer.style.display = "none";
-            this.coverLayer.style.opacity = 0;
-        }
-        if (this.textLayer) {
-            this.textLayer.innerHTML = "";
-            this.textLayer.style.display = "none";
-        }
-        if (this.flashLayer) {
-            this.flashLayer.style.display = "none";
-            this.flashLayer.style.transition = "";
-        }
-        if (this.letterboxLayer) {
-            this.letterboxLayer.innerHTML = "";
-            this.letterboxLayer.style.display = "none";
-        }
-        if (this.curtainLayer) {
-            this.curtainLayer.innerHTML = "";
-            this.curtainLayer.style.display = "none";
-        }
-        if (this.countdownLayer) {
-            this.countdownLayer.innerHTML = "";
-            this.countdownLayer.style.display = "none";
-        }
-        if (this.slideshowLayer) {
-            this.slideshowLayer.innerHTML = "";
-            this.slideshowLayer.style.display = "none";
-        }
-        if (this.levelupLayer) {
-            this.levelupLayer.innerHTML = "";
-            this.levelupLayer.style.display = "none";
-        }
+        if (this.coverLayer) this.coverLayer.style.opacity = 0;
+        if (this.flashLayer) this.flashLayer.style.transition = "";
 
         // Remove filters
         this._resetFilters();
