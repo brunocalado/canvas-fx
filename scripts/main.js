@@ -34,8 +34,9 @@ const LAYERS = {
 // One element with a combined backdrop-filter list would not do either: Colorfy, Night Vision
 // and Vignette are painted overlays, not filter functions.
 // Backdrop filters sit lowest so the painted overlays above them are not blurred or greyed;
-// the vignette frames the colour kinds. Grain is on the lens, above ScreenCover and weather.
-const FILTER_Z = { blur: 120001, bw: 120002, sepia: 120003, colorfy: 120004, night: 120005, vignette: 120006, grain: 165000 };
+// the vignette frames the colour kinds. Grain is on the lens, above ScreenCover and weather,
+// and frost is on the glass above the grain.
+const FILTER_Z = { blur: 120001, bw: 120002, sepia: 120003, colorfy: 120004, night: 120005, vignette: 120006, grain: 165000, frost: 166000 };
 
 class CanvasFXManager {
     // Auto-hide timers keyed by layer. Restarting an effect on a layer replaces its
@@ -140,6 +141,7 @@ class CanvasFXManager {
     Blur(options = {}) { this.emit("filter_blur", options); }
     Sepia(options = {}) { this.emit("filter_sepia", options); }
     FilmGrain(options = {}) { this.emit("filter_grain", options); }
+    Frost(options = {}) { this.emit("filter_frost", options); }
     
     Countdown(options = {}) { 
         // Validation
@@ -235,6 +237,7 @@ class CanvasFXManager {
                 case "filter_blur": this.handleBlur(data); break;
                 case "filter_sepia": this.handleSepia(data); break;
                 case "filter_grain": this.handleFilmGrain(data); break;
+                case "filter_frost": this.handleFrost(data); break;
                 case "countdown": this.handleCountdown(data); break;
                 case "slideshow": this.handleSlideshow(data); break;
                 case "scifi_levelup": this.handleSciFiLevelUp(data); break;
@@ -754,6 +757,14 @@ class CanvasFXManager {
             el.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity || 0.8}) 100%)`;
         });
     }
+    handleFrost(d) {
+        // Frost thaws rather than vanishing, both on active: false and when its duration ends
+        if (d.active === false) return this.#thawFrost();
+        this.#setFilter("frost", { ...d, duration: 0 }, el => this.#startFrost(el, {
+            grow: d.grow ?? 4, coverage: d.coverage ?? 0.45
+        }));
+        if (d.duration > 0) this.#schedule("filter:frost", () => this.#thawFrost(), d.duration * 1000);
+    }
     handleFilmGrain(d) {
         this.#setFilter("grain", d, el => this.#startGrain(el, {
             intensity: d.intensity ?? 0.35, scratches: d.scratches ?? true, flicker: d.flicker ?? true
@@ -867,6 +878,70 @@ class CanvasFXManager {
             for (const url of urls) URL.revokeObjectURL(url);
             urls.length = 0;
         };
+    }
+
+    /**
+     * Grows a frosted-glass edge inward over `grow` seconds: a backdrop blur masked clear at the
+     * centre, with a noisy mask so the frost front is ragged rather than a clean ellipse. The mask
+     * is drawn small and stretched, and redrawn about 12 times a second while it grows.
+     * Drawn or simulated ice crystals were tried on top of it (strokes, aggregation, a GPU
+     * phase-field) and left out: at screen scale none of them read as frost on glass.
+     * @returns {Function} stops the growth
+     */
+    #startFrost(el, { grow, coverage }) {
+        el.classList.add("cfx-frost");
+        const W = window.innerWidth, H = window.innerHeight;
+        const MW = 160, MH = Math.max(1, Math.round(160 * H / W));
+        const mask = document.createElement("canvas");
+        mask.width = MW;
+        mask.height = MH;
+        const ctx = mask.getContext("2d");
+        const img = ctx.createImageData(MW, MH);
+        // Box-blurred noise: blotches a few cells wide make the front ragged
+        const rough = new Float32Array(MW * MH).map(() => Math.random());
+        for (let pass = 0; pass < 3; pass++) {
+            for (let y = 1; y < MH - 1; y++) for (let x = 1; x < MW - 1; x++) {
+                const i = y * MW + x;
+                rough[i] = (rough[i] * 2 + rough[i - 1] + rough[i + 1] + rough[i - MW] + rough[i + MW]) / 6;
+            }
+        }
+        const half = Math.min(W, H) / 2;
+        const paint = p => {
+            for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
+                const i = y * MW + x;
+                const edge = Math.min(x / MW * W, (MW - 1 - x) / MW * W, y / MH * H, (MH - 1 - y) / MH * H) / half;
+                const front = p * coverage + (rough[i] - 0.5) * 0.25;
+                img.data[i * 4 + 3] = Math.min(Math.max((front - edge) / 0.1, 0), 1) * 255;
+            }
+            ctx.putImageData(img, 0, 0);
+            el.style.maskImage = `url(${mask.toDataURL()})`;
+        };
+        paint(0);
+
+        let raf = null;
+        const start = performance.now();
+        let last = 0;
+        const step = now => {
+            const t = grow > 0 ? Math.min((now - start) / (grow * 1000), 1) : 1;
+            if (now - last > 80 || t === 1) {
+                paint(1 - (1 - t) ** 2);
+                last = now;
+            }
+            if (t < 1) raf = requestAnimationFrame(step);
+        };
+        raf = requestAnimationFrame(step);
+        return () => cancelAnimationFrame(raf);
+    }
+
+    /** Fades the frost out over a second instead of removing it at once. */
+    #thawFrost() {
+        const el = document.getElementById("canvas-fx-filter-frost");
+        if (!el) return;
+        this.#filterStops.get("frost")?.();
+        this.#filterStops.delete("frost");
+        el.style.transition = "opacity 1s ease-in";
+        el.style.opacity = "0";
+        this.#schedule("filter:frost", () => this.#removeFilter("frost"), 1000);
     }
 
     handleSpin(d) {

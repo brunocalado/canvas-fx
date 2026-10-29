@@ -128,6 +128,11 @@ export const DEMO_MACROS = [
         })
     },
     {
+        name: "Frost",
+        img: DEMO_ICON,
+        run: () => CanvasFX.Frost({ duration: 8 })
+    },
+    {
         name: "Old Film",
         img: DEMO_ICON,
         run: () => CanvasFX.FilmGrain({ duration: 8 })

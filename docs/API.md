@@ -308,10 +308,10 @@ CanvasFX.Pulsate({ intensity: 3, duration: 800, iterations: "infinite" });
 ```
 
 ### Filters stack
-Colorfy, Blur, Vignette, Night Vision, Black & White, Sepia and Film Grain can be on at the same time. Calling the
+Colorfy, Blur, Vignette, Night Vision, Black & White, Sepia, Film Grain and Frost can be on at the same time. Calling the
 same filter again replaces it; a different filter is added on top. They always paint in a fixed
 order, whatever order they were called in: Blur, Black & White, Sepia, Colorfy, Night Vision, Vignette
-(the vignette frames everything under it), then Film Grain on top of them all. A `duration` removes only its own filter.
+(the vignette frames everything under it), then Film Grain and Frost on top of them all. A `duration` removes only its own filter.
 Every filter takes `active` (Boolean): pass `false` to remove that one filter and leave the
 others; `CanvasFX.Clear()` removes all of them.
 
@@ -446,7 +446,30 @@ CanvasFX.FilmGrain();
 CanvasFX.FilmGrain({ intensity: 0.5, scratches: true, flicker: false, duration: 8 });
 ```
 
-### 19. Countdown
+### 19. Frost (Filter)
+Frost creeps in from the screen edges like frosted glass, leaving the centre clear. It sits on top
+of the other filters and of Film Grain. When it ends, by `duration` or `active: false`, it thaws
+over one second; `CanvasFX.Clear()` removes it at once.
+
+**Syntax:** `CanvasFX.Frost(options)`
+
+**Options:**
+- `grow` (Number): Seconds the frost takes to creep in. Default: `4`.
+- `coverage` (Number): How far toward the centre it reaches (0.0 to 1.0). Default: `0.45`.
+- `duration` (Number): Thaw after seconds. If 0, stays until cleared. Default: `0`.
+- `active` (Boolean): `false` thaws this filter. Default: `true`.
+
+```javascript
+// Simple
+CanvasFX.Frost();
+```
+
+```javascript
+// Complete
+CanvasFX.Frost({ grow: 6, coverage: 0.6, duration: 10 });
+```
+
+### 20. Countdown
 Displays a large number that counts from a start value to an end value.
 
 **Syntax:** `CanvasFX.Countdown(options)`
@@ -469,7 +492,7 @@ CanvasFX.Countdown();
 CanvasFX.Countdown({ start: 60, end: 0, color: "red" });
 ```
 
-### 20. Slideshow
+### 21. Slideshow
 Displays a sequence of images from a folder with crossfade transitions. Stops automatically after the last image.
 
 **Syntax:** `CanvasFX.Slideshow(path, options)`
@@ -492,7 +515,7 @@ CanvasFX.Slideshow("path/to/your-folder");
 CanvasFX.Slideshow("path/to/your-folder", { interval: 5, fade: 2000 });
 ```
 
-### 21. Sci-Fi Level Up
+### 22. Sci-Fi Level Up
 Displays a centered 3D holographic HUD (Three.js) announcing a level-up. A burst of warp streaks draws a chamfered HUD frame out of nothing; the outline thickens into beveled glass, instrument readouts and circuit traces populate it, and a flare at the center punches the text in. Once the text has fully formed, particles sampled from its own glyph shape erupt outward from it. Long messages are scaled down automatically so they always fit inside the frame.
 
 **Syntax:** `CanvasFX.SciFiLevelUp(options)`

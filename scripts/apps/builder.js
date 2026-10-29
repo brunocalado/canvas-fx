@@ -53,6 +53,11 @@ const EFFECTS = {
         { name: "interval", type: "number", label: "Interval (ms)", default: 100 },
         { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: "" }
     ],
+    "Frost": [
+        { name: "grow", type: "number", label: "Grow Time (sec)", default: 4 },
+        { name: "coverage", type: "number", label: "Coverage", default: 0.45 },
+        { name: "duration", type: "number", label: "Duration (sec)", default: 0 }
+    ],
     "GlassShatter": [
         { name: "count", type: "number", label: "Shards", default: 50 },
         { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: "" }
@@ -150,6 +155,7 @@ const EFFECT_DESCRIPTIONS = {
     Curtain: "Closes and opens theater curtains over the screen.",
     FilmGrain: "Old-film grain, scratches and flicker over the screen.",
     Flash: "A sudden bright flash of light, optionally repeated.",
+    Frost: "Frost creeps in from the screen edges.",
     GlassShatter: "Simulates the screen shattering into glass shards. Includes a screen shake.",
     Letterbox: "Adds cinematic black bars to the top and bottom of the screen.",
     NightVision: "Applies a green night-vision filter to the screen.",
