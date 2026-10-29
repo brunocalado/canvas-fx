@@ -307,7 +307,8 @@ class CanvasFXManager {
         if (!this.slideshowLayer) return;
         const images = data.images;
         if (!images || images.length === 0) return;
-        
+        if (this.slideshowInterval) clearInterval(this.slideshowInterval);
+
         const interval = (data.interval || 3) * 1000;
         const fadeTime = data.fade || 1000;
         
@@ -339,7 +340,7 @@ class CanvasFXManager {
              // Just one image, allow it to stay for interval then clear?
              // Or just show it. Let's show it, then clear after interval.
              this.slideshowInterval = setTimeout(() => {
-                 this.handleClear();
+                 this.#endSlideshow();
              }, interval);
              return; 
         }
@@ -352,7 +353,7 @@ class CanvasFXManager {
                 // Wait one more interval so the last slide can be seen, then clear.
                 clearInterval(this.slideshowInterval);
                 this.slideshowInterval = setTimeout(() => {
-                    this.handleClear();
+                    this.#endSlideshow();
                 }, interval);
                 return;
             }
@@ -372,9 +373,16 @@ class CanvasFXManager {
                 activeBuffer = 1;
             }
         };
-        
-        if (this.slideshowInterval) clearInterval(this.slideshowInterval);
+
         this.slideshowInterval = setInterval(nextSlide, interval);
+    }
+
+    /** Stops the slideshow's timers and hides its layer, leaving every other effect running. */
+    #endSlideshow() {
+        clearInterval(this.slideshowInterval); // also clears a setTimeout handle: one id pool per window
+        this.slideshowInterval = null;
+        this.slideshowLayer.innerHTML = "";
+        this.slideshowLayer.style.display = "none";
     }
 
     // --- SCI-FI LEVEL UP ---
