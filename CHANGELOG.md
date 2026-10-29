@@ -6,6 +6,7 @@
 - [Fixed] Slideshow skips video files in the folder instead of showing a blank slide for them, and now also accepts the other image formats Foundry supports (SVG, AVIF, APNG, BMP, TIFF).
 - [Fixed] ScreenShake after a Spin shakes at full strength again instead of a faint drift.
 - [Fixed] Rain and RainImage called without a count spawn 20 particles, as documented, instead of nothing.
+- [Fixed] Countdown keeps start and end within 0–1000 as intended.
 
 # 1.0.9
 

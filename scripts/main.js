@@ -144,7 +144,8 @@ class CanvasFXManager {
         if (start < 0) start = 0; if (start > 1000) start = 1000;
         if (end < 0) end = 0; if (end > 1000) end = 1000;
         
-        this.emit("countdown", { start, end, ...options });
+        // The clamped values have to come last or the raw options overwrite them
+        this.emit("countdown", { ...options, start, end });
     }
 
     SciFiLevelUp(options = {}) { this.emit("scifi_levelup", options); }

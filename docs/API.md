@@ -383,10 +383,12 @@ Displays a large number that counts from a start value to an end value.
 **Syntax:** `CanvasFX.Countdown(options)`
 
 **Options:**
-- `start` (Number): Number to start at. Default: `10`.
-- `end` (Number): Number to end at. Default: `0`.
+- `start` (Number): Number to start at. Default: `10`. Clamped to 0–1000.
+- `end` (Number): Number to end at. Default: `0`. Clamped to 0–1000.
 - `color` (String): Color of the text. Default: `"white"`.
 - `audio` (String): Path to a tick sound effect played on every change. Default: none (silent).
+
+It counts down when `start` is higher than `end`, and up when `start` is lower; one step per second.
 
 ```javascript
 // Simple
