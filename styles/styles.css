@@ -276,9 +276,9 @@
 /* --- ANIMATIONS --- */
 #canvas-fx-border.active { display: block; animation: cfx-pulse-border 2s infinite; }
 @keyframes cfx-pulse-border {
-    0% { box-shadow: inset 0 0 20px rgba(var(--cfx-border-rgb), 0.5); border-color: rgba(var(--cfx-border-rgb), 0.8); }
-    50% { box-shadow: inset 0 0 50px rgba(var(--cfx-border-rgb), 0.8); border-color: rgba(var(--cfx-border-rgb), 1); }
-    100% { box-shadow: inset 0 0 20px rgba(var(--cfx-border-rgb), 0.5); border-color: rgba(var(--cfx-border-rgb), 0.8); }
+    0% { box-shadow: inset 0 0 20px rgba(var(--cfx-border-rgb), calc(0.5 * var(--cfx-border-alpha, 1))); border-color: rgba(var(--cfx-border-rgb), calc(0.8 * var(--cfx-border-alpha, 1))); }
+    50% { box-shadow: inset 0 0 50px rgba(var(--cfx-border-rgb), calc(0.8 * var(--cfx-border-alpha, 1))); border-color: rgba(var(--cfx-border-rgb), calc(1 * var(--cfx-border-alpha, 1))); }
+    100% { box-shadow: inset 0 0 20px rgba(var(--cfx-border-rgb), calc(0.5 * var(--cfx-border-alpha, 1))); border-color: rgba(var(--cfx-border-rgb), calc(0.8 * var(--cfx-border-alpha, 1))); }
 }
 @keyframes cfx-pulse-anim {
     0% { transform: scale(1) rotate(0deg); } 50% { transform: scale(var(--cfx-pulse-scale)); } 100% { transform: scale(1) rotate(0deg); }

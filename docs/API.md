@@ -127,7 +127,7 @@ Toggles a pulsing colored border used for alerts (e.g., Low Health).
 
 **Options:**
 - `active` (Boolean): Explicitly turn on (`true`) or off (`false`). If omitted, it toggles the current state.
-- `color` (String): Border color (Hex or Name). Default: `"red"`.
+- `color` (String): Border color, any CSS color. A translucent one makes the border fainter; an invalid one uses the default. Default: `"red"`.
 - `thickness` (Number): Border width in pixels. Default: `20`.
 
 ```javascript
@@ -369,7 +369,7 @@ Darkens the edges of the screen.
 
 **Options:**
 - `intensity` (Number): Darkness strength (0.0 to 1.0). Default: `0.8`.
-- `color` (String): Color of the vignette. Default: `"black"`.
+- `color` (String): Color of the vignette, any CSS color. A translucent one scales `intensity` by its alpha; an invalid one uses the default. Default: `"black"`.
 - `duration` (Number): Auto-remove after seconds. Default: `0`.
 - `active` (Boolean): `false` removes this filter. Default: `true`.
 

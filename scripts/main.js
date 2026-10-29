@@ -252,17 +252,23 @@ class CanvasFXManager {
         foundry.audio.AudioHelper.play({ src: src, volume: options.volume || 0.8, autoplay: true }, false);
     }
 
+    /**
+     * Normalizes any CSS color through a canvas, which reads back as #rrggbb when opaque and
+     * rgba(r, g, b, a) when translucent; only the first form was parsed before, so every
+     * translucent color turned red.
+     * @returns {{rgb: string, alpha: number} | null} null when `color` is not a usable sRGB color
+     */
     colorToRGB(color) {
+        // An invalid color leaves fillStyle at its #000000 default, which would read as black
+        if (!CSS.supports("color", color)) return null;
         const ctx = document.createElement("canvas").getContext("2d");
         ctx.fillStyle = color;
-        let hex = ctx.fillStyle; 
-        if (hex.startsWith("#")) {
-            const r = parseInt(hex.slice(1, 3), 16);
-            const g = parseInt(hex.slice(3, 5), 16);
-            const b = parseInt(hex.slice(5, 7), 16);
-            return `${r}, ${g}, ${b}`;
+        const value = ctx.fillStyle;
+        if (value.startsWith("#")) {
+            return { rgb: [1, 3, 5].map(i => parseInt(value.slice(i, i + 2), 16)).join(", "), alpha: 1 };
         }
-        return "255, 0, 0"; 
+        const m = value.match(/^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/);
+        return m ? { rgb: `${m[1]}, ${m[2]}, ${m[3]}`, alpha: Number(m[4]) } : null;
     }
 
     /* --- EFFECTS IMPLEMENTATION --- */
@@ -310,6 +316,8 @@ class CanvasFXManager {
         if (this.borderLayer) {
             this.borderLayer.classList.remove("active");
             this.borderLayer.style.borderWidth = "";
+            this.borderLayer.style.removeProperty("--cfx-border-rgb");
+            this.borderLayer.style.removeProperty("--cfx-border-alpha");
         }
         if (this.coverLayer) this.coverLayer.style.opacity = 0;
         if (this.flashLayer) this.flashLayer.style.transition = "";
@@ -691,14 +699,15 @@ class CanvasFXManager {
             this.borderLayer.classList.add("active"); 
             this.borderLayer.style.display = "block";
             this.borderLayer.style.borderWidth = `${thickness}px`; 
-            const color = options.color || "red"; 
-            const rgb = this.colorToRGB(color); // Returns "r,g,b" string
+            const { rgb, alpha } = this.colorToRGB(options.color || "red") ?? this.colorToRGB("red");
             this.borderLayer.style.setProperty('--cfx-border-rgb', rgb); 
+            this.borderLayer.style.setProperty('--cfx-border-alpha', alpha); 
         } else { 
             this.borderLayer.classList.remove("active"); 
             this.borderLayer.style.display = "none"; 
             this.borderLayer.style.borderWidth = ""; 
             this.borderLayer.style.removeProperty('--cfx-border-rgb'); 
+            this.borderLayer.style.removeProperty('--cfx-border-alpha'); 
         }
     }
 
@@ -753,8 +762,8 @@ class CanvasFXManager {
     }
     handleVignette(d) {
         this.#setFilter("vignette", d, el => {
-            const rgb = this.colorToRGB(d.color || "black");
-            el.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity ?? 0.8}) 100%)`;
+            const { rgb, alpha } = this.colorToRGB(d.color || "black") ?? this.colorToRGB("black");
+            el.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${(d.intensity ?? 0.8) * alpha}) 100%)`;
         });
     }
     handleFrost(d) {
