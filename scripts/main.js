@@ -718,7 +718,7 @@ class CanvasFXManager {
     handlePulsate(d) {
         document.body.style.animation = 'none'; void document.body.offsetHeight;
         document.body.style.setProperty('--cfx-pulse-scale', 1 + (0.02 * (d.intensity || 2)));
-        document.body.style.animation = `cfx-pulse-anim ${d.duration || 1000}ms ease-in-out ${d.iterations || "infinite"}`;
+        document.body.style.animation = `cfx-pulse-anim ${d.duration || 1000}ms ease-in-out ${d.iterations || 5}`;
     }
     handleShake(d) {
         if (this.shakeInterval) clearInterval(this.shakeInterval);

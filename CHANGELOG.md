@@ -12,6 +12,7 @@
 - [Changed] Text and ScreenCover with `duration: 0` now stay on screen until `CanvasFX.Clear()`, like the screen filters; before, 0 fell back to the default duration.
 - [Fixed] Builder: "Create Macro" works with quotes or backslashes in the text or path, and no longer says the macro was created when it was not.
 - [Changed] Builder: fields now start at the effects' defaults (Blur, Flash, Glass Shatter, Rain, Rain Image, Sci-Fi Level Up, Text), and ScreenShake has a Direction field.
+- [Changed] Pulsate called without `iterations` now beats 5 times instead of forever. Pass `iterations: "infinite"` to keep it running until `Clear()`.
 
 # 1.0.9
 
