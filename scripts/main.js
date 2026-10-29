@@ -570,7 +570,7 @@ class CanvasFXManager {
         if (!this.textLayer) return;
         // Cancel first, so a persistent Text also stops an older one's hide
         this.#cancel("text");
-        const content = data.content; const duration = (data.duration || 3) * 1000; const color = data.color || "white"; const bg = data.backgroundColor || "black"; const fontFamily = data.fontFamily || "Impact, sans-serif"; const fill = data.fill || "box"; 
+        const content = data.content; const duration = (data.duration ?? 3) * 1000; const color = data.color || "white"; const bg = data.backgroundColor || "black"; const fontFamily = data.fontFamily || "Impact, sans-serif"; const fill = data.fill || "box"; 
         this.textLayer.innerHTML = ""; this.textLayer.style.display = "flex"; this.textLayer.style.opacity = "0";
         const textBox = document.createElement("div"); textBox.className = "cfx-text-box"; textBox.innerText = content; textBox.style.color = color; textBox.style.backgroundColor = bg; textBox.style.fontFamily = fontFamily;
         if (fill === "band") { textBox.style.width = "100%"; textBox.style.borderRadius = "0"; textBox.style.left = "0"; } else if (fill === "full") { textBox.style.width = "100vw"; textBox.style.height = "100vh"; textBox.style.borderRadius = "0"; textBox.style.left = "0"; textBox.style.top = "0"; textBox.style.display = "flex"; textBox.style.justifyContent = "center"; textBox.style.alignItems = "center"; }
@@ -591,7 +591,7 @@ class CanvasFXManager {
     handleCover(data) {
         if (!this.coverLayer) return;
         this.#cancel("cover");
-        const path = data.content; const duration = (data.duration || 5) * 1000; const opacity = data.opacity !== undefined ? data.opacity : 1.0; const isVideo = path.endsWith(".webm") || path.endsWith(".mp4");
+        const path = data.content; const duration = (data.duration ?? 5) * 1000; const opacity = data.opacity !== undefined ? data.opacity : 1.0; const isVideo = path.endsWith(".webm") || path.endsWith(".mp4");
         this.coverLayer.innerHTML = ""; this.coverLayer.style.opacity = "0"; this.coverLayer.style.display = "flex";
         let el; if (isVideo) { el = document.createElement("video"); el.src = path; el.autoplay = true; el.loop = true; el.muted = true; } else { el = document.createElement("img"); el.src = path; }
         el.style.opacity = opacity; this.coverLayer.appendChild(el);

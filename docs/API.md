@@ -180,7 +180,7 @@ Displays a massive text overlay.
 - `content` (String): The message to display. **Required**.
 
 **Options:**
-- `duration` (Number): How long the text stays visible in seconds. Default: `3`.
+- `duration` (Number): How long the text stays visible in seconds. Default: `3`. `0` keeps it on screen until `CanvasFX.Clear()`.
 - `color` (String): Text color. Default: `"white"`.
 - `backgroundColor` (String): Background color. Default: `"black"`.
 - `fontFamily` (String): Font family. Default: `"Impact, sans-serif"`.
@@ -211,7 +211,7 @@ Displays a full-screen image or video.
 - `path` (String): URL to image or video (.webm/.mp4). **Required**.
 
 **Options:**
-- `duration` (Number): Duration in seconds. Default: `5`.
+- `duration` (Number): Duration in seconds. Default: `5`. `0` keeps it on screen until `CanvasFX.Clear()`.
 - `opacity` (Number): Opacity (0.0 to 1.0). Default: `1.0`.
 
 ```javascript
