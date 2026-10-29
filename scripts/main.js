@@ -255,10 +255,8 @@ class CanvasFXManager {
      * Resets all effects, layers, animations, and filters.
      */
     handleClear() {
-        // Stop active loops
         this.running = false;
         
-        // Clear intervals/timeouts
         if (this.shakeInterval) clearInterval(this.shakeInterval);
         if (this.slideshowInterval) {
             clearInterval(this.slideshowInterval);
@@ -300,10 +298,8 @@ class CanvasFXManager {
         if (this.coverLayer) this.coverLayer.style.opacity = 0;
         if (this.flashLayer) this.flashLayer.style.transition = "";
 
-        // Remove filters
         this.#resetFilters();
 
-        // Reset transforms
         document.body.style.transform = "";
         document.body.style.transition = "";
         document.body.style.animation = "";
@@ -341,7 +337,6 @@ class CanvasFXManager {
         let currentIndex = 0;
         let activeBuffer = 1; // 1 or 2
         
-        // Initial image
         img1.src = images[0];
         
         if (images.length === 1) {
@@ -352,9 +347,7 @@ class CanvasFXManager {
              return; 
         }
         
-        // Start loop
         const nextSlide = () => {
-            // Check if we reached the end
             if (currentIndex >= images.length - 1) {
                 // We just finished showing the last slide.
                 // Wait one more interval so the last slide can be seen, then clear.
@@ -428,7 +421,6 @@ class CanvasFXManager {
     handleCountdown(data) {
         if (!this.countdownLayer) return;
         
-        // Ensure integers
         let startVal = parseInt(data.start);
         let endVal = parseInt(data.end);
         if (isNaN(startVal)) startVal = 10;
@@ -437,11 +429,9 @@ class CanvasFXManager {
         const color = data.color || "white";
         const audioPath = data.audio;
         
-        // Reset layer
         this.countdownLayer.innerHTML = "";
         this.countdownLayer.style.display = "flex";
         
-        // Clear old intervals
         if (this.countdownInterval) {
             clearInterval(this.countdownInterval);
             this.countdownInterval = null;
@@ -455,7 +445,6 @@ class CanvasFXManager {
         span.style.color = color;
         span.innerText = startVal;
         
-        // Apply initial pulse
         span.classList.add("cfx-pulse-tick");
         
         this.countdownLayer.appendChild(span);
@@ -463,7 +452,6 @@ class CanvasFXManager {
         let currentVal = startVal;
         const direction = startVal > endVal ? -1 : 1;
         
-        // Trigger sound for first number
         if (audioPath) this.playSound(audioPath, { volume: 0.8 });
         
         // If already at end, just show for 1s then hide
@@ -476,19 +464,15 @@ class CanvasFXManager {
 
         // Advance 1 step every 1 second
         this.countdownInterval = setInterval(() => {
-            // Update value
             currentVal += direction;
             span.innerText = currentVal;
             
-            // Pulse Animation Trigger
             span.classList.remove("cfx-pulse-tick");
-            void span.offsetWidth; // Force Reflow
+            void span.offsetWidth; // Force a reflow so the pulse animation restarts
             span.classList.add("cfx-pulse-tick");
             
-            // Play Sound
             if (audioPath) this.playSound(audioPath, { volume: 0.8 });
 
-            // Check if finished
             if (currentVal === endVal) {
                 clearInterval(this.countdownInterval);
                 this.countdownInterval = null;
@@ -511,7 +495,6 @@ class CanvasFXManager {
             const el = document.createElement("div");
             el.classList.add("cfx-shard-realistic");
             
-            // Create random polygon shape
             const p1 = `${Math.random()*100}% ${Math.random()*100}%`;
             const p2 = `${Math.random()*100}% ${Math.random()*100}%`;
             const p3 = `${Math.random()*100}% ${Math.random()*100}%`;
@@ -521,11 +504,9 @@ class CanvasFXManager {
             el.style.width = `${size}px`;
             el.style.height = `${size}px`;
 
-            // Random spawn position
             const startX = Math.random() * screenW;
             const startY = Math.random() * screenH;
 
-            // Explosion vector calculation
             const angle = Math.random() * Math.PI * 2;
             const force = 200 + Math.random() * 600;
             const vx = Math.cos(angle) * force;
@@ -636,7 +617,6 @@ class CanvasFXManager {
             textBox.style.alignItems = "center";
         }
 
-        // Animations
         const anim = data.animation || "none";
         if (anim === "pulse") textBox.classList.add("cfx-anim-pulse");
         else if (anim === "shake") textBox.classList.add("cfx-anim-shake");
@@ -835,10 +815,8 @@ class CanvasFXManager {
         // An omitted count still has to spawn something; 20 is the documented default.
         const count = d.count ?? 20;
         if (d.time > 0) {
-            // Emitter mode
             this.emitters.push({ data: d, totalParticles: count, duration: d.time, elapsed: 0, spawned: 0 });
         } else {
-            // Burst mode
             this.spawnBatch(d, count);
         }
         this.startLoop();
@@ -847,7 +825,6 @@ class CanvasFXManager {
     spawnBatch(d, n) {
         const w = window.innerWidth;
         const h = window.innerHeight;
-        // Calculate particle size
         const baseSize = d.type === "image" ? 64 : 32;
         const scale = d.scale || 1;
         const size = baseSize * scale;
@@ -918,7 +895,6 @@ class CanvasFXManager {
         const h = window.innerHeight;
         const w = window.innerWidth;
         
-        // Update emitters
         this.emitters = this.emitters.filter(e => {
             e.elapsed += dt;
             const prog = Math.min(e.elapsed / e.duration, 1);
@@ -930,7 +906,6 @@ class CanvasFXManager {
             return e.elapsed < e.duration;
         });
 
-        // Update particles
         this.particles = this.particles.filter(p => {
             if (p.gravity) p.vy += p.gravity * dt;
             p.x += p.vx * dt;
