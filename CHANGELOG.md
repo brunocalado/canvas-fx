@@ -4,6 +4,7 @@
 - [Fixed] A timed effect (Text, ScreenCover, Blur, Colorfy, NightVision, BlackAndWhite, Vignette, Curtain) no longer hides a newer effect on the same layer when its own time runs out, and Clear() now also stops a Flash in progress.
 - [Fixed] A slideshow reaching its last image no longer clears every other effect on screen.
 - [Fixed] Slideshow skips video files in the folder instead of showing a blank slide for them, and now also accepts the other image formats Foundry supports (SVG, AVIF, APNG, BMP, TIFF).
+- [Fixed] ScreenShake after a Spin shakes at full strength again instead of a faint drift.
 
 # 1.0.9
 

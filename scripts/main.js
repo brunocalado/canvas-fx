@@ -297,6 +297,7 @@ class CanvasFXManager {
 
         // Reset transforms
         document.body.style.transform = "";
+        document.body.style.transition = "";
         document.body.style.animation = "";
         this.globalRotation = 0;
 
@@ -705,8 +706,12 @@ class CanvasFXManager {
     handleSpin(d) {
         const angle = d.angle || 360; const dir = d.direction || "clockwise";
         if (dir === "clockwise") this.globalRotation += angle; else this.globalRotation -= angle;
-        document.body.style.transition = `transform ${d.duration || 2000}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+        const ms = d.duration || 2000;
+        document.body.style.transition = `transform ${ms}ms cubic-bezier(0.25, 1, 0.5, 1)`;
         document.body.style.transform = `rotate(${this.globalRotation}deg)`;
+        // The transition is only for this rotation; left on the body it smooths every
+        // later ScreenShake frame into a near-still drift.
+        this.#schedule("spin", () => { document.body.style.transition = ""; }, ms);
     }
     handlePulsate(d) {
         document.body.style.animation = 'none'; void document.body.offsetHeight;
