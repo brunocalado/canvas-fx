@@ -1,3 +1,7 @@
+# Unreleased
+
+- [Changed] The macro reference is now `docs/API.md`, linked from the README.
+
 # 1.0.9
 
 ### Removed

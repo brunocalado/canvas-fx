@@ -23,15 +23,15 @@ Before writing your macros, you can use these internal tools to preview effects 
 | <img src="docs/macro-builder-quick-preview.webp" alt="Canvas FX Builder window showing GlassShatter selected, with Shards and Audio URL fields and Play Effect, Create Macro, Reset and Clear Screen buttons" width="400"> | <img src="docs/quick-demo.webp" alt="Canvas FX Demo gallery listing effects such as Blur, Flash, Letterbox, Sci-Fi Level Up and Vignette, with a Clear All FX button" width="400"> |
 
 ### 2. Create Your Effects
-Once you have chosen an effect, refer to the **Wiki**. It contains the exact code snippets you need to copy into your macros to replicate the features listed below.
+Once you have chosen an effect, refer to the **API reference**. It contains the exact code snippets you need to copy into your macros to replicate the features listed below.
 
-👉 **[Read the Wiki & API Reference](docs/wiki.md)**
+👉 **[Read the API Reference](docs/API.md)**
 
 ---
 
 ## ✨ Features
 
-By using the simple commands found in the Wiki, you can create:
+By using the simple commands found in the API reference, you can create:
 
 * **🌧️ Particles:** Rain emojis (🔥, ❄️, 💰), text, or custom images.
 * **💥 Impact:** Screen shakes, glass shattering simulations, and bright flashes (lightning/explosions).

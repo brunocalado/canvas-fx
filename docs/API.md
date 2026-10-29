@@ -1,4 +1,4 @@
-# Canvas FX - Wiki
+# Canvas FX - API
 
 **Canvas FX** provides cinematic visual effects for Foundry VTT using a lightweight DOM-based system. All effects are synchronized between the Game Master and players via sockets.
 
