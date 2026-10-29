@@ -253,22 +253,23 @@ export class CanvasFXBuilderApp extends HandlebarsApplicationMixin(ApplicationV2
 
         let command = `// Canvas FX - ${effect}\n`;
         const paramsStr = JSON.stringify(params, null, 2);
-        if (CONTENT_FIRST_EFFECTS.includes(effect)) command += `CanvasFX.${effect}("${mainContent}", ${paramsStr});`;
+        if (CONTENT_FIRST_EFFECTS.includes(effect)) command += `CanvasFX.${effect}(${JSON.stringify(mainContent)}, ${paramsStr});`;
         else command += `CanvasFX.${effect}(${paramsStr});`;
 
         const folderName = "CanvasFX Builder";
         let folder = game.folders.find(f => f.name === folderName && f.type === "Macro");
         if (!folder) folder = await foundry.documents.Folder.create({ name: folderName, type: "Macro" });
 
-        await foundry.documents.Macro.create({
+        const macro = await foundry.documents.Macro.create({
             name: `CFX: ${effect}`,
             type: "script",
             command,
             folder: folder.id,
             img: "icons/svg/d20.svg"
         });
+        if (!macro) return; // core already reported the validation error
 
-        ui.notifications.info(`CanvasFX: Macro "CFX: ${effect}" created!`);
+        ui.notifications.info(`CanvasFX: Macro "${macro.name}" created!`);
     }
 
     /**
