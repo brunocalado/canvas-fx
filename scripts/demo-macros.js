@@ -103,8 +103,7 @@ export const DEMO_MACROS = [
         img: DEMO_ICON,
         run: () => CanvasFX.ScreenShake({
             intensity: "extreme",
-            duration: 4000,
-            direction: "random"
+            duration: 4000
         })
     },
     {

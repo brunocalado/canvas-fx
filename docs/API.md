@@ -91,6 +91,7 @@ Shakes the interface to simulate impact.
 **Options:**
 - `intensity` (String): "mild", "heavy", "extreme". Default: `"heavy"`.
 - `duration` (Number): Duration in milliseconds. Default: `500`.
+- `direction` (String): "both", "horizontal" or "vertical". Default: `"both"`.
 
 ```javascript
 // Simple

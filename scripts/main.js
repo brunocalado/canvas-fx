@@ -725,10 +725,11 @@ class CanvasFXManager {
         const mag = d.intensity === "extreme" ? 20 : d.intensity === "mild" ? 3 : 10;
         const start = Date.now();
         const dur = d.duration || 500;
+        const dir = d.direction || "both";
         this.shakeInterval = setInterval(() => {
             if (Date.now() - start >= dur) { clearInterval(this.shakeInterval); document.body.style.transform = `rotate(${this.globalRotation}deg)`; return; }
-            const x = (Math.random() - 0.5) * mag * 2;
-            const y = (Math.random() - 0.5) * mag * 2;
+            const x = dir === "vertical" ? 0 : (Math.random() - 0.5) * mag * 2;
+            const y = dir === "horizontal" ? 0 : (Math.random() - 0.5) * mag * 2;
             document.body.style.transform = `translate(${x}px, ${y}px) rotate(${this.globalRotation}deg)`;
         }, 16);
     }

@@ -8,6 +8,7 @@
 - [Fixed] Rain and RainImage called without a count spawn 20 particles, as documented, instead of nothing.
 - [Fixed] Countdown keeps start and end within 0–1000 as intended.
 - [Fixed] Vignette now uses its color option instead of always being black.
+- [Added] ScreenShake takes a `direction` option: "both" (default), "horizontal" or "vertical". The "Shake Screen (Vertical / Heavy)" demo now really shakes vertically.
 
 # 1.0.9
 
