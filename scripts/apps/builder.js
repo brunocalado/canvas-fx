@@ -6,7 +6,7 @@
  * it under the terms of the GNU General Public License version 3.
  */
 
-import { MODULE_ID, TEMPLATES, DEFAULT_LEVELUP_AUDIO } from "../constants.js";
+import { MODULE_ID, TEMPLATES } from "../constants.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -84,7 +84,7 @@ const EFFECTS = {
         { name: "background", type: "select", label: "Background", options: ["transparent", "solid"], default: "solid" },
         { name: "backgroundColor", type: "color", label: "Background Color", default: "#000000" },
         { name: "duration", type: "number", label: "Duration (sec, min 7)", default: 7 },
-        { name: "audio", type: "text", label: "Audio URL (blank = silent)", picker: "audio", default: DEFAULT_LEVELUP_AUDIO }
+        { name: "audio", type: "text", label: "Audio URL (blank = silent)", picker: "audio", default: "" }
     ],
     "ScreenBorder": [
         { name: "active", type: "checkbox", label: "Active", default: true },
