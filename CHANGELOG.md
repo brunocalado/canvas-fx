@@ -14,6 +14,7 @@
 - [Changed] Builder: fields now start at the effects' defaults (Blur, Flash, Glass Shatter, Rain, Rain Image, Sci-Fi Level Up, Text), and ScreenShake has a Direction field.
 - [Changed] Pulsate called without `iterations` now beats 5 times instead of forever. Pass `iterations: "infinite"` to keep it running until `Clear()`.
 - [Fixed] Calling CanvasFX.Builder() or CanvasFX.Demo() while the window is already open brings it forward instead of replacing it and losing what was typed.
+- [Changed] `docs/API.md` now documents every option with the default the code actually uses.
 
 # 1.0.9
 

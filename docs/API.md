@@ -19,8 +19,8 @@ The module exposes a global object `CanvasFX`. Use these commands inside any **S
 These options are available for **all** effects (unless stated otherwise).
 
 - `users` (Array of Strings): List of user names who should see the effect. If omitted, everyone sees it. Example: `users: ["Gamemaster", "Player1"]`.
-- `audio` (String): Path to an audio file to play in sync with the effect.
-- `volume` (Number): Audio volume (0.0 to 1.0). Default: `0.8`.
+- `audio` (String): Path to an audio file to play in sync with the effect. Not played by ScreenBorder; Countdown plays it on every tick instead.
+- `volume` (Number): Audio volume (0.0 to 1.0). Default: `0.8`. `0` is treated as unset and also plays at `0.8`. Countdown's ticks always play at `0.8`.
 
 ---
 
@@ -177,7 +177,7 @@ Displays a massive text overlay.
 **Syntax:** `CanvasFX.Text(content, options)`
 
 **Arguments:**
-- `content` (String): The message to display. **Required**.
+- `content` (String): The message to display, shown in upper case. **Required**.
 
 **Options:**
 - `duration` (Number): How long the text stays visible in seconds. Default: `3`. `0` keeps it on screen until `CanvasFX.Clear()`.
@@ -208,7 +208,7 @@ Displays a full-screen image or video.
 **Syntax:** `CanvasFX.ScreenCover(path, options)`
 
 **Arguments:**
-- `path` (String): URL to image or video (.webm/.mp4). **Required**.
+- `path` (String): URL to an image or video. **Required**. It is played as a video only when the path ends in lowercase `.webm` or `.mp4`; anything else is shown as an image.
 
 **Options:**
 - `duration` (Number): Duration in seconds. Default: `5`. `0` keeps it on screen until `CanvasFX.Clear()`.
@@ -275,6 +275,8 @@ Rotates the entire game view.
 - `duration` (Number): Animation duration in milliseconds. Default: `2000`.
 - `direction` (String): "clockwise" or "counter-clockwise". Default: `"clockwise"`.
 
+Rotations add up: each Spin turns from where the previous one left the view, until `CanvasFX.Clear()` resets it.
+
 ```javascript
 // Simple
 CanvasFX.Spin();
@@ -312,7 +314,7 @@ Applies a multiply color blend to the screen.
 
 **Options:**
 - `color` (String): Overlay color. Default: `"red"`.
-- `opacity` (Number): Layer opacity. Default: `0.3`.
+- `opacity` (Number): Layer opacity. Default: `0.3`. `0` is treated as unset and also gives `0.3`.
 - `duration` (Number): Auto-remove after seconds. If 0, stays until cleared. Default: `0`.
 
 ```javascript
