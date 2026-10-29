@@ -307,6 +307,24 @@ CanvasFX.Pulsate();
 CanvasFX.Pulsate({ intensity: 3, duration: 800, iterations: "infinite" });
 ```
 
+### Filters stack
+Colorfy, Blur, Vignette, Night Vision and Black & White can be on at the same time. Calling the
+same filter again replaces it; a different filter is added on top. They always paint in a fixed
+order, whatever order they were called in: Blur, Black & White, Colorfy, Night Vision, Vignette
+(the vignette frames everything under it). A `duration` removes only its own filter.
+Every filter takes `active` (Boolean): pass `false` to remove that one filter and leave the
+others; `CanvasFX.Clear()` removes all of them.
+
+```javascript
+// A drowsy, faded look: three filters at once
+CanvasFX.Blur({ intensity: 2 });
+CanvasFX.BlackAndWhite();
+CanvasFX.Vignette({ intensity: 0.9 });
+
+// Later, wake up: remove only the blur
+CanvasFX.Blur({ active: false });
+```
+
 ### 13. Colorfy (Filter)
 Applies a multiply color blend to the screen.
 
@@ -316,6 +334,7 @@ Applies a multiply color blend to the screen.
 - `color` (String): Overlay color. Default: `"red"`.
 - `opacity` (Number): Layer opacity. Default: `0.3`. `0` is treated as unset and also gives `0.3`.
 - `duration` (Number): Auto-remove after seconds. If 0, stays until cleared. Default: `0`.
+- `active` (Boolean): `false` removes this filter. Default: `true`.
 
 ```javascript
 // Simple
@@ -335,6 +354,7 @@ Blurs the screen.
 **Options:**
 - `intensity` (Number): Blur radius in pixels. Default: `5`.
 - `duration` (Number): Auto-remove after seconds. Default: `0`.
+- `active` (Boolean): `false` removes this filter. Default: `true`.
 
 ```javascript
 // Simple
@@ -355,6 +375,7 @@ Darkens the edges of the screen.
 - `intensity` (Number): Darkness strength (0.0 to 1.0). Default: `0.8`.
 - `color` (String): Color of the vignette. Default: `"black"`.
 - `duration` (Number): Auto-remove after seconds. Default: `0`.
+- `active` (Boolean): `false` removes this filter. Default: `true`.
 
 ```javascript
 // Simple
@@ -375,6 +396,7 @@ Preset filters.
 
 **Options:**
 - `duration` (Number): Auto-remove after seconds. Default: `0`.
+- `active` (Boolean): `false` removes this filter. Default: `true`.
 
 ```javascript
 CanvasFX.NightVision({ duration: 10 });

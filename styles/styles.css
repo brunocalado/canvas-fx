@@ -50,11 +50,10 @@
     pointer-events: none; z-index: 290000; display: none;
 }
 
-/* Filter Layer */
-#canvas-fx-filter {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    pointer-events: none; z-index: 120000; display: none;
-    transition: background 0.5s ease;
+/* Filter kinds: one element each, z-index set per kind */
+.cfx-filter {
+    position: fixed; inset: 0;
+    pointer-events: none;
 }
 
 /* --- COUNTDOWN --- */

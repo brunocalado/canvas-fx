@@ -21,7 +21,6 @@ const LAYERS = {
     borderLayer: "canvas-fx-border",
     coverLayer: "canvas-fx-cover",
     textLayer: "canvas-fx-text",
-    filterLayer: "canvas-fx-filter",
     flashLayer: "canvas-fx-flash",
     letterboxLayer: "canvas-fx-letterbox",
     curtainLayer: "canvas-fx-curtain",
@@ -29,6 +28,12 @@ const LAYERS = {
     slideshowLayer: "canvas-fx-slideshow",
     levelupLayer: "canvas-fx-levelup"
 };
+
+// Each filter kind is its own <body> child, painted by this z-index. Inside one shared fixed
+// container a kind's mix-blend-mode would blend only with the other kinds, not with the page.
+// Backdrop filters sit lowest so the painted overlays above them are not blurred or greyed;
+// the vignette frames the colour kinds.
+const FILTER_Z = { blur: 120001, bw: 120002, colorfy: 120004, night: 120005, vignette: 120006 };
 
 class CanvasFXManager {
     // Auto-hide timers keyed by layer. Restarting an effect on a layer replaces its
@@ -284,10 +289,10 @@ class CanvasFXManager {
         }
 
         // Empty and hide every layer. The particle layer is emptied but never hidden,
-        // since nothing shows it again; the filter layer is reset by #resetFilters().
+        // since nothing shows it again.
         for (const key of Object.keys(LAYERS)) {
             const el = this[key];
-            if (!el || key === "filterLayer") continue;
+            if (!el) continue;
             el.innerHTML = "";
             if (key !== "layer") el.style.display = "none";
         }
@@ -298,7 +303,7 @@ class CanvasFXManager {
         if (this.coverLayer) this.coverLayer.style.opacity = 0;
         if (this.flashLayer) this.flashLayer.style.transition = "";
 
-        this.#resetFilters();
+        document.querySelectorAll(".cfx-filter").forEach(el => el.remove());
 
         document.body.style.transform = "";
         document.body.style.transition = "";
@@ -724,53 +729,39 @@ class CanvasFXManager {
         }
     }
 
-    handleBlur(d) { this.applyFilter("blur", `blur(${d.intensity||5}px)`, d.duration); }
-    handleColorfy(d) { 
-        this.#resetFilters();
-        if(!this.filterLayer) return;
-        this.filterLayer.style.display = "block";
-        this.filterLayer.style.backgroundColor = d.color || "red";
-        this.filterLayer.style.opacity = d.opacity || 0.3;
-        this.filterLayer.style.mixBlendMode = "multiply";
-        if(d.duration > 0) this.#schedule("filter", () => this.#resetFilters(), d.duration * 1000);
+    handleBlur(d) { this.#setFilter("blur", d, el => { el.style.backdropFilter = `blur(${d.intensity || 5}px)`; }); }
+    handleBlackAndWhite(d) { this.#setFilter("bw", d, el => el.classList.add("cfx-bw")); }
+    handleNightVision(d) { this.#setFilter("night", d, el => el.classList.add("cfx-night-vision")); }
+    handleColorfy(d) {
+        this.#setFilter("colorfy", d, el => {
+            el.style.backgroundColor = d.color || "red";
+            el.style.opacity = d.opacity || 0.3;
+            el.style.mixBlendMode = "multiply";
+        });
     }
-    handleNightVision(d) { this.applyClassFilter("cfx-night-vision", d.duration); }
-    handleBlackAndWhite(d) { this.applyClassFilter("cfx-bw", d.duration); }
     handleVignette(d) {
-        this.#resetFilters();
-        this.filterLayer.style.display = "block";
-        const rgb = this.colorToRGB(d.color || "black");
-        this.filterLayer.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity || 0.8}) 100%)`;
-        if(d.duration > 0) this.#schedule("filter", () => this.#resetFilters(), d.duration * 1000);
+        this.#setFilter("vignette", d, el => {
+            const rgb = this.colorToRGB(d.color || "black");
+            el.style.background = `radial-gradient(circle, transparent 50%, rgba(${rgb}, ${d.intensity || 0.8}) 100%)`;
+        });
     }
 
-    applyFilter(prop, val, dur) {
-        this.#resetFilters();
-        this.filterLayer.style.display = "block";
-        this.filterLayer.style.backdropFilter = val;
-        this.filterLayer.style.webkitBackdropFilter = val;
-        // Automatically remove filter after duration if specified
-        const ms = dur > 0 ? dur * 1000 : 0;
-        if(ms > 0) this.#schedule("filter", () => this.#resetFilters(), ms);
+    /** Applies one filter kind, replacing only that kind, and schedules only its own expiry. */
+    #setFilter(kind, data, apply) {
+        this.#removeFilter(kind);
+        if (data.active === false) return;
+        const el = document.createElement("div");
+        el.id = `canvas-fx-filter-${kind}`;
+        el.className = "cfx-filter";
+        el.style.zIndex = FILTER_Z[kind];
+        apply(el);
+        document.body.appendChild(el);
+        if (data.duration > 0) this.#schedule(`filter:${kind}`, () => this.#removeFilter(kind), data.duration * 1000);
     }
-    applyClassFilter(cls, dur) {
-        this.#resetFilters();
-        this.filterLayer.style.display = "block";
-        this.filterLayer.classList.add(cls);
-        const ms = dur > 0 ? dur * 1000 : 0;
-        if(ms > 0) this.#schedule("filter", () => this.#resetFilters(), ms);
-    }
-    #resetFilters() {
-        this.#cancel("filter");
-        if(!this.filterLayer) return;
-        this.filterLayer.style.display = "none";
-        this.filterLayer.className = "";
-        this.filterLayer.style.background = "";
-        this.filterLayer.style.backgroundColor = "";
-        this.filterLayer.style.opacity = "";
-        this.filterLayer.style.mixBlendMode = "";
-        this.filterLayer.style.backdropFilter = "";
-        this.filterLayer.style.webkitBackdropFilter = "";
+
+    #removeFilter(kind) {
+        this.#cancel(`filter:${kind}`);
+        document.getElementById(`canvas-fx-filter-${kind}`)?.remove();
     }
 
     handleSpin(d) {
