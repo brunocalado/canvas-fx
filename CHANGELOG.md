@@ -1,4 +1,4 @@
-# Unreleased
+# 1.1.1
 
 - [Added] ScreenCover videos play their own sound, at the new videoVolume option (default 0.8, 0 mutes), scaled by the Interface volume.
 
