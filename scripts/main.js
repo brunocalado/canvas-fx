@@ -672,7 +672,16 @@ class CanvasFXManager {
             el.src = path;
             el.autoplay = true;
             el.loop = true;
+            // Starts muted so autoplay is never refused; sound comes in once the page has had a user
+            // gesture. game.audio.unlock resolves immediately if that already happened. Not
+            // game.video.play: while locked it holds the picture back too, and keeps a cover that
+            // ended or was cleared queued to play on the first gesture.
             el.muted = true;
+            const videoVolume = data.videoVolume ?? 0.8;
+            if (videoVolume > 0) {
+                el.volume = Math.clamp(videoVolume * game.settings.get("core", "globalInterfaceVolume"), 0, 1);
+                game.audio.unlock.then(() => { if (el.isConnected) el.muted = false; });
+            }
         } else {
             el = document.createElement("img");
             el.src = path;

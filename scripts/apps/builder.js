@@ -105,6 +105,7 @@ const EFFECTS = {
     "ScreenCover": [
         { name: "content", type: "text", label: "Image/Video URL", picker: "imagevideo", default: "" },
         { name: "audio", type: "text", label: "Audio URL", picker: "audio", default: "" },
+        { name: "videoVolume", type: "number", label: "Video Volume (0 = mute)", default: 0.8 },
         { name: "opacity", type: "number", label: "Opacity", default: 1.0 },
         { name: "duration", type: "number", label: "Duration (sec)", default: 5 }
     ],

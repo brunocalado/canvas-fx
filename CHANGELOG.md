@@ -1,3 +1,7 @@
+# Unreleased
+
+- [Added] ScreenCover videos play their own sound, at the new videoVolume option (default 0.8, 0 mutes), scaled by the Interface volume.
+
 # 1.1.0
 
 - [Added] `CanvasFX.Frost()`: frost creeping in from the screen edges, combinable with the other filters. Also in the Builder and the Demo.

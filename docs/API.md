@@ -209,6 +209,9 @@ Displays a full-screen image or video.
 **Options:**
 - `duration` (Number): Duration in seconds. Default: `5`. `0` keeps it on screen until `CanvasFX.Clear()`.
 - `opacity` (Number): Opacity (0.0 to 1.0). Default: `1.0`.
+- `videoVolume` (Number): Volume of the video's own soundtrack (0.0 to 1.0), scaled by the
+  player's Interface volume. Default: `0.8`. `0` keeps the video silent. Ignored for images.
+  Plays alongside `audio` if both are given.
 
 ```javascript
 // Simple
@@ -219,7 +222,8 @@ CanvasFX.ScreenCover("path/to/your-image.webp");
 // Complete
 CanvasFX.ScreenCover("path/to/your-video.webm", { 
     duration: 15, 
-    opacity: 0.8 
+    opacity: 0.8,
+    videoVolume: 0.5
 });
 ```
 
